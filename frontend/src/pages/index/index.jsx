@@ -9,6 +9,7 @@ import MiddleSide from '@/pages/index/components/middleside/MiddleSide';
 function MainPage() {
     // 현재 월을 관리하는 상태
     const [currentMonth, setCurrentMonth] = useState(dayjs());
+    const [monthPickerOpen, setMonthPickerOpen] = useState(false);
 
     return (
         <div className={styles.container}>
@@ -18,7 +19,10 @@ function MainPage() {
             </div>
             {/* 가운데 */}
             <div className={styles.middleSide}>
-                <MiddleSide currentMonth={currentMonth} />
+                <MiddleSide
+                    currentMonth={dayjs()} // dayjs 객체
+                    onTodayClick={() => setCurrentMonth(dayjs())}
+                />
             </div>
             {/* 오른쪽 사이드 */}
             <div className={styles.rightSide}>
