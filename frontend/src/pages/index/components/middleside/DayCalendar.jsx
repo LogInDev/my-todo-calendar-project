@@ -1,41 +1,37 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 // redux
-import { useSelector, useDispatch } from 'react-redux'
-import { setDate } from '@/store/dateSlice'
+import { useSelector } from 'react-redux'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
 // CSS
 import styles from './DayCalendar.module.scss'
+// dayjs
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 dayjs.extend(isToday)
 
-function DayCalendar() {
-    const dispatch = useDispatch()
-    const selectedDate = useSelector((state) => state.date.selectedDate)
+function DayCalendar({ date }) {
+    const isToday = date.isToday()
 
+    // 선택된 날짜에 따라 todos 상태를 업데이트
     const [todos, setTodos] = useState([
         {
             id: '1',
             title: '세브란스 예약',
-            start: dayjs(selectedDate).hour(15).minute(50),
-            end: dayjs(selectedDate).hour(16).minute(50),
+            start: dayjs(date).hour(15).minute(50),
+            end: dayjs(date).hour(16).minute(50),
             color: '#e6f4ff',
         },
     ])
 
-    const isToday = selectedDate.isToday()
 
     return (
         <div className={styles.wrapper}>
             <div className={styles.dateHeader}>
-                <span>{selectedDate.format('dddd')}</span>
-                <span
-                    className={`${styles.dateBox} ${isToday ? styles.today : styles.notToday
-                        }`}
-                >
-                    {selectedDate.date()}
+                <span>{date.format('dddd')}</span>
+                <span className={`${styles.dateBox} ${isToday ? styles.today : styles.notToday}`}>
+                    {date.date()}
                 </span>
             </div>
 

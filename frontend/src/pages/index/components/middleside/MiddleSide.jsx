@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 // redux
 import { useSelector, useDispatch } from 'react-redux';
 import { setDate } from '@/store/dateSlice';
 // Components
 import MonthCalendar from './MonthCalendar';
-import DayCalendar from './DayCalendar';
+import SlideCalendar from './SlideCalendar';
 import WeekCalendar from './WeekCalendar';
 // CSS
 import styles from './MiddleSide.module.scss'
@@ -15,27 +15,36 @@ import { UpOutlined, DownOutlined, LeftOutlined, RightOutlined } from '@ant-desi
 import dayjs from 'dayjs';
 
 function MiddleSide() {
+    // 현재 선택된 날짜를 관리하는 상태
     const dispatch = useDispatch()
     const selectedDate = useSelector((state) => state.date.selectedDate)
+    // 선택된 컨텐츠 옵션
     const [viewType, setViewType] = useState('day')
 
-    const isToday = dayjs().isSame(selectedDate, 'day')
+    // 슬라이드 효과
+    const [slideIndex, setSlideIndex] = useState(1) // 0: 이전, 1: 현재, 2: 다음
+    const [isSliding, setIsSliding] = useState(false)
 
-    const monthOptions = [
-        { value: 'day', label: '일' },
-        { value: 'week', label: '주' },
-        { value: 'month', label: '월' },
-    ]
+    const handleSlide = (dir) => {
+        if (isSliding) return
+        const isPrev = dir === 'prev'
+        setIsSliding(true)
+        setSlideIndex(isPrev ? 0 : 2)
 
-    // viewType 상태에 따라 현재 선택된 날짜를 가져옴
-    const handleMoveDate = (direction) => {
-        const unit = viewType === 'day' ? 'day' : viewType === 'week' ? 'week' : 'month'
-        const newDate =
-            direction === 'prev'
-                ? dayjs(selectedDate).subtract(1, unit)
-                : dayjs(selectedDate).add(1, unit)
+        setTimeout(() => {
+            const newDate = dayjs(selectedDate)[isPrev ? 'subtract' : 'add'](1, viewType)
+            dispatch(setDate(newDate))
+            setIsSliding(false)
+            setSlideIndex(1)
+        }, 400)
+    }
 
-        dispatch(setDate(newDate))
+    const handleWheel = (e) => {
+        // 좌우 스크롤에만 반응, 수직 스크롤은 무시
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            if (e.deltaX > 20) handleSlide('next')
+            else if (e.deltaX < -20) handleSlide('prev')
+        }
     }
 
     // viewType에 따른 middleSide 컨텐츠 렌더링
@@ -47,12 +56,12 @@ function MiddleSide() {
                 return <WeekCalendar />
             case 'day':
             default:
-                return <DayCalendar date={dayjs()} />
+                return <SlideCalendar selectedDate={selectedDate} slideIndex={slideIndex} isSliding={isSliding} />
         }
     }
 
     return (
-        <div>
+        <div onWheel={handleWheel}> {/* 좌우 휠 이벤트 감지 */}
             {/* middelSide 헤더 */}
             <div className={styles.header}>
                 <span className={styles.header__dateText}>
@@ -60,56 +69,28 @@ function MiddleSide() {
                 </span>
                 <div className={styles.controls}>
                     <Select
-                        value={viewType}
-                        options={monthOptions}
+                        value={viewType} options={[
+                            { value: 'day', label: '일' },
+                            { value: 'week', label: '주' },
+                            { value: 'month', label: '월' },
+                        ]}
                         onChange={(value) => setViewType(value)}
                     />
                     <Button onClick={() => dispatch(setDate(dayjs()))}>오늘</Button>
                     {viewType === 'month' ? (
                         <>
-                            <Button
-                                type="text"
-                                onClick={() => handleMoveDate('prev')}
-                                icon={
-                                    <span className={styles.controls__changeIcon}>
-                                        <UpOutlined />
-                                    </span>
-                                }
-                            />
-                            <Button
-                                type="text"
-                                onClick={() => handleMoveDate('next')}
-                                icon={
-                                    <span className={styles.controls__changeIcon}>
-                                        <DownOutlined />
-                                    </span>
-                                }
-                            />
+                            <Button onClick={() => handleSlide('prev')} icon={<UpOutlined />} />
+                            <Button onClick={() => handleSlide('next')} icon={<DownOutlined />} />
                         </>
                     ) : (
                         <>
-                            <Button
-                                type="text"
-                                onClick={() => handleMoveDate('prev')}
-                                icon={
-                                    <span className={styles.controls__changeIcon}>
-                                        <LeftOutlined />
-                                    </span>
-                                }
-                            />
-                            <Button
-                                type="text"
-                                onClick={() => handleMoveDate('next')}
-                                icon={
-                                    <span className={styles.controls__changeIcon}>
-                                        <RightOutlined />
-                                    </span>
-                                }
-                            />
+                            <Button onClick={() => handleSlide('prev')} icon={<LeftOutlined />} />
+                            <Button onClick={() => handleSlide('next')} icon={<RightOutlined />} />
                         </>
                     )}
                 </div>
             </div>
+
             {/* middleSide 컨텐츠 */}
             <div className={styles.content}>
                 {renderCalendar()}

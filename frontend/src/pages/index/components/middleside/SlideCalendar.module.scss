@@ -1,0 +1,22 @@
+.sliderWrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.sliderTrack {
+  display: flex;
+  width: 300%;
+  transform: translateX(calc(-100% * var(--slide-index)));
+  transition: transform 0.4s ease;
+
+  &.noTransition {
+    transition: none !important;
+  }
+}
+
+.slidePage {
+  flex: 0 0 100%;
+  max-width: 100%;
+  height: 100%;
+}
