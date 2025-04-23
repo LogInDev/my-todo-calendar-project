@@ -60,6 +60,7 @@ function TagList() {
 
     return (
         <div>
+            {/* 태그 헤더 */}
             <div className={styles.tagHeader}>
                 <div>
                     <TagOutlined /> Tag
@@ -68,7 +69,7 @@ function TagList() {
                     <PlusOutlined />
                 </div>
             </div>
-
+            {/* 태그 리스트 */}
             <div className={styles.tagList}>
                 {tags.map((tag) => (
                     <TagItem

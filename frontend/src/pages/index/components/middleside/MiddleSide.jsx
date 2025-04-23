@@ -7,7 +7,10 @@ import { ScheduleOutlined } from '@ant-design/icons';
 function MiddleSide({ currentMonth }) {
     return (
         <div>
-            <ScheduleOutlined />{currentMonth.format('YYYY MM월')}
+            {/* middelSide 헤더 */}
+            <div className={styles.header}>
+                <span>{currentMonth.format('YYYY M월')}</span>
+            </div>
         </div>
     )
 }
