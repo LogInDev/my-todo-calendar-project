@@ -1,0 +1,26 @@
+.tagHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 16px;   // 왼쪽 여백
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid rgba(black, 0.05);
+
+    svg {
+        margin-right: 8px; // 아이콘-텍스트 사이 간격
+        font-size: 16px;
+    }
+
+    .plusIcon{
+        svg {
+            color:main.$color-gray-400;
+        }
+    }
+
+    .tagList{
+        
+    }
+}

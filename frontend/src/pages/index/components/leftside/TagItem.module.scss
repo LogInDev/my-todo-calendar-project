@@ -1,0 +1,38 @@
+.tagItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f3f3f3;
+  padding: 6px 10px;
+  border-radius: 12px;
+  margin: 4px 12px;
+
+  .colorDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 25%;
+    border: 2px solid #fff;
+    margin-right: 8px;
+  }
+
+  .name {
+    flex: 1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .moreIcon {
+    margin-right: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #888;
+  }
+
+  .eyeIcon {
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+  }
+}
