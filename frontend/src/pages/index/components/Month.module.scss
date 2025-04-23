@@ -1,0 +1,43 @@
+.wrapper {
+  padding: 8px;
+   :global {
+    .ant-picker-calendar-mini {
+        font-size: 16px;
+        background: transparent;
+
+        .ant-picker-content td {
+            height: 24px;
+            line-height: 24px;
+            padding: 2px;
+        }
+
+        .ant-picker-body {
+            padding: 0 4px;
+        }
+
+        .ant-picker-header {
+            display: none;
+        }
+
+        .ant-picker-panel {
+            zoom: 0.7;
+            background: transparent;
+        }
+    }
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.3rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color:main.$color-gray-400;
+
+  svg {
+    font-size: 15px;
+    margin-left: 10px;
+  }
+}
