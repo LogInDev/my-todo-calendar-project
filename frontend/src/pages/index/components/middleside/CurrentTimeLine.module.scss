@@ -1,0 +1,21 @@
+.currentLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #1677ff; // Ant Design blue
+  z-index: 2;
+  pointer-events: none;
+
+  &::before {
+    content: attr(data-time);
+    position: absolute;
+    left: 0;
+    background-color: #1677ff;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transform: translateY(-50%);
+  }
+}

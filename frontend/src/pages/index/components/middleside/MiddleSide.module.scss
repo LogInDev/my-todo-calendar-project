@@ -5,27 +5,35 @@
   padding: 12px 16px;
   font-size: 20px;
   font-weight: 500;
-}
+  height: 60px;
 
-.dateText {
-  font-size: 24px;
 
-  strong {
-    font-weight: bold;
-  }
-}
+    &__dateText {
+        font-size: 24px;
 
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+        strong {
+            font-weight: bold;
+        }
+    }
 
-  .ant-btn {
-    padding: 0 8px;
-  }
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
 
-  .ant-select-selector {
-    padding: 0 8px;
-    font-size: 16px;
-  }
+        .ant-btn {
+            padding: 0 8px;
+        }
+
+        .ant-select-selector {
+            padding: 0 8px;
+            font-size: 16px;
+        }
+
+        &__changeIcon{
+            display: flex;
+            gap: 8px;
+            padding: 2px 4px;
+        }
+    }
 }
