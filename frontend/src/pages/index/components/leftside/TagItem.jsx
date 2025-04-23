@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { MoreOutlined, EyeOutlined } from '@ant-design/icons';
-import { Dropdown, ColorPicker, Button } from 'antd';
+import React from 'react';
+import { MoreOutlined, EyeOutlined, CloseOutlined } from '@ant-design/icons';
+import { Dropdown, Input, ColorPicker } from 'antd';
 import styles from './TagItem.module.scss';
 
-function TagItem({ name, initialColor = '#d5bfbf' }) {
-    const [color, setColor] = useState(initialColor);
-
+function TagItem({ id, name, color, inputRef, onChange, onBlur, onColorChange, onRemove }) {
     const items = [
         {
             key: 'color',
             label: (
-                <ColorPicker
-                    defaultValue={color}
-                    onChangeComplete={(color) => setColor(color.toHexString())}
-                />
+                <div style={{ padding: 8 }}>
+                    <ColorPicker
+                        defaultValue={color}
+                        onChangeComplete={(c) => onColorChange(c.toHexString())}
+                    />
+                </div>
             ),
         },
     ];
@@ -21,13 +21,26 @@ function TagItem({ name, initialColor = '#d5bfbf' }) {
     return (
         <div className={styles.tagItem}>
             <span className={styles.colorDot} style={{ backgroundColor: color }} />
-            <span className={styles.name}>{name}</span>
+            <Input
+                value={name}
+                placeholder="태그 이름 입력"
+                onChange={(e) => onChange(e.target.value)}
+                onBlur={(e) => onBlur(e.target.value)}
+                ref={inputRef}
+                bordered={false}
+                className={styles.tagInput}
+            />
             <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
                 <MoreOutlined className={styles.moreIcon} />
             </Dropdown>
             <EyeOutlined className={styles.eyeIcon} />
+            <CloseOutlined
+                className={styles.closeIcon}
+                onClick={() => onRemove(id)}
+            />
         </div>
     );
 }
+
 
 export default TagItem
