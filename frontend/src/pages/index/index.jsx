@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 // Components
 import LeftSide from '@pages/index/components/leftside/LeftSide';
 import MiddleSide from '@/pages/index/components/middleside/MiddleSide';
+import RightSide from './components/rightside/RightSide';
 
 function MainPage() {
     // 현재 월을 관리하는 상태
@@ -26,7 +27,7 @@ function MainPage() {
             </div>
             {/* 오른쪽 사이드 */}
             <div className={styles.rightSide}>
-                rightSide
+                <RightSide />
             </div>
         </div>
     )

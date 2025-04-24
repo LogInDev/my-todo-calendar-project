@@ -1,5 +1,5 @@
 .wrapper {
-    width: 100%;
+    width: calc(100vw - 510px); // leftSide(230px) + rightSide(280px) 제외
     height: 100%;
     flex-shrink: 0;
     position: relative;
@@ -8,9 +8,9 @@
   .dateHeader {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     font-size: 14px;
-    // font-weight: 100;
     padding: 9px 16px;
     height: 30px;
   
@@ -39,8 +39,6 @@
     position: relative;
     flex: 1;
     overflow-y: scroll;
-    // padding-top: 8px;
-    padding-right: 16px;
     border-top: 1px solid main.$color-gray-200;
     max-height: calc(100vh - 90px); // middleSide 헤더(60px) + dateHeader(30px) 높이 제외
 

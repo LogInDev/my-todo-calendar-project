@@ -13,7 +13,7 @@
   cursor: move;
   user-select: none;
 
-  width: calc(100vw - 510px); // leftSide(230px) + rightSide(280px) 제외
+  width: calc(100vw - 600px); // leftSide(230px) + rightSide(280px) + ⍺ 제외
 
   transition: box-shadow 0.2s ease;
 
