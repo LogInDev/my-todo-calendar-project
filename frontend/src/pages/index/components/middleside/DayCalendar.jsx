@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-// redux
-import { useSelector } from 'react-redux'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
@@ -20,43 +18,72 @@ function DayCalendar({ date }) {
         {
             id: '1',
             title: '세브란스 예약',
-            start: dayjs(date).hour(15).minute(50),
-            end: dayjs(date).hour(16).minute(50),
+            start: dayjs(date).hour(1).minute(50),
+            end: dayjs(date).hour(1).minute(50),
             color: '#e6f4ff',
+            isAllDay: false,  // 종일 여부
         },
     ])
 
     // drop하는 곳의 정보를 todoItem에 업데이트
-    const updateTodoTime = (todo, newHour, newMinute) => {
+    const updateTodoTime = (todo, newHour, newMinute, isAllDayDrop = false) => {
+        const newStart = isAllDayDrop
+            ? dayjs(date).startOf('day')       // 종일이면 시간 없이 날짜만
+            : dayjs(date).hour(newHour).minute(newMinute)
+
+        const duration = dayjs(todo.end).diff(dayjs(todo.start), 'minute')
+
+        const newEnd = isAllDayDrop
+            ? newStart.add(15, 'minute')       // 종일 높이용
+            : newStart.add(duration, 'minute')
+
         setTodos((prev) =>
-            prev.map((t) => {
-                if (t.id === todo.id) {
-                    const duration = dayjs(t.end).diff(t.start, 'minute')
-                    const newStart = dayjs(date).hour(newHour).minute(newMinute)
-                    const newEnd = newStart.add(duration, 'minute')
-                    return { ...t, start: newStart, end: newEnd }
-                }
-                return t
-            })
+            prev.map((t) =>
+                t.id === todo.id
+                    ? {
+                        ...t,
+                        start: newStart,
+                        end: newEnd,
+                        isAllDay: isAllDayDrop,
+                    }
+                    : t
+            )
         )
     }
 
     return (
         <div className={styles.wrapper}>
+            {/* 날짜 헤더 */}
             <div className={styles.dateHeader}>
-                <span>{date.format('dddd')}</span>
-                <span className={`${styles.dateBox} ${isToday ? styles.today : styles.notToday}`}>
+                <span>{date.format('ddd')}</span>
+                <span className={`${styles.dateHeader__dateBox} ${isToday ? styles.dateHeader__today : styles.dateHeader__notToday}`}>
                     {date.date()}
                 </span>
             </div>
 
+            {/* 일 캘린더 */}
             <div className={styles.timeGrid}>
+                {/* 종일 영역 */}
+                <div className={styles.allDayRow}>
+                    <span className={styles.allDayRow__label}>종일</span>
+                    <DropCell
+                        isAllDay
+                        hour={0}
+                        minute={0}
+                        onDrop={updateTodoTime}
+                    />
+                </div>
+
+                {/* 현재 시간 표시 라인 */}
                 {isToday && <CurrentTimeLine />}
 
+                {/* 시간 그리드 */}
                 {[...Array(24)].map((_, hour) => (
-                    <div key={hour} className={styles.timeGrid__hourRow}>
-                        <span className={styles.timeGrid__hourLabel}>{hour}:00</span>
-                        <div className={styles.timeGrid__column}>
+                    <div key={hour} className={styles.hourRow}>
+                        <span className={styles.hourRow__label}>
+                            {hour !== 0 ? `${hour}:00` : ''}
+                        </span>
+                        <div className={styles.hourRow__column}>
                             {[0, 15, 30, 45].map((minute) => (
                                 <DropCell
                                     key={`${hour}-${minute}`}
@@ -69,6 +96,7 @@ function DayCalendar({ date }) {
                     </div>
                 ))}
 
+                {/* 할 일 */}
                 {todos.map((todo) => (
                     <TodoItem key={todo.id} data={todo} />
                 ))}

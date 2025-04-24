@@ -3,12 +3,11 @@ import { useDrop } from 'react-dnd'
 // CSS
 import styles from './DropCell.module.scss'
 
-function DropCell({ hour, minute, onDrop }) {
+function DropCell({ hour, minute, onDrop, isAllDay = false }) {
     const [{ isOver }, dropRef] = useDrop({
         accept: 'TODO',
         drop: (item) => {
-            console.log('[DropCell] dropped', item, hour, minute)
-            onDrop(item, hour, minute)
+            onDrop(item, hour, minute, isAllDay)
         },
         collect: (monitor) => ({
             isOver: monitor.isOver(),
@@ -18,10 +17,8 @@ function DropCell({ hour, minute, onDrop }) {
     return (
         <div
             ref={dropRef}
-            className={`${styles.cell} ${isOver ? styles.isOver : ''}`}
-        >
-            {/* optional 시각적 표시 */}
-        </div>
+            className={`${styles.cell} ${isAllDay ? styles.allDay : ''} ${isOver ? styles.isOver : ''}`}
+        />
     )
 }
 

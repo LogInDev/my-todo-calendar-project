@@ -7,9 +7,17 @@
   z-index: 1;
 }
 
+// 종일
+.allDay {
+  height: 100%;
+  flex: 1;
+  border-radius: 4px;
+}
+
+// 드래그시 드롭 영역
 .isOver {
     border: 2px solid main.$color-blue-600;
     border-radius: 5px;
     box-shadow: 10px 4px 10px rgba(0, 0, 0, 0.55); 
-    z-index: 10; // 위로 올림
+    z-index: 10; 
 }
