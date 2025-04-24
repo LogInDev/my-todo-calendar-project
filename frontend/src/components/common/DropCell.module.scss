@@ -21,3 +21,7 @@
     box-shadow: 10px 4px 10px rgba(0, 0, 0, 0.55); 
     z-index: 10; 
 }
+
+.isInRange {
+  background-color: rgba(main.$color-blue-100, 0.3); // 드래그 영역 하이라이트
+}

@@ -1,23 +1,26 @@
-import React, { useState, useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { nanoid } from 'nanoid'; // 고유 id 생성용
+// redux
+import { useDispatch, useSelector } from 'react-redux';
+import { addTag, ensureDefaultTag, updateTagName, updateTagColor, removeTag } from '@/store/tagSlice';
 // CSS
 import styles from './TagList.module.scss'
+import { getRandomColor } from '@utils/colorUtils'
 // antd
 import { TagOutlined, PlusOutlined } from '@ant-design/icons';
 import TagItem from './TagItem';
 
-function getRandomColor() {
-    const colors = ['#d5bfbf', '#71b3e3', '#a3da8d', '#ffd666', '#ff85c0'];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
-
 function TagList() {
-    const [tags, setTags] = useState([
-        { id: nanoid(), name: '데일리', color: '#d5bfbf' },
-        { id: nanoid(), name: '업무', color: '#71b3e3' },
-    ]);
+    const dispatch = useDispatch();
+    const tags = useSelector((state) => state.tag.tagList)
     const inputRefs = useRef({});
+
+    // 태그가 없을 경우 기본 태그 생성
+    useEffect(() => {
+        if (tags.length === 0) {
+            dispatch(ensureDefaultTag())
+        }
+    }, [tags])
 
     const handleAddTag = () => {
         const newTag = {
@@ -25,7 +28,7 @@ function TagList() {
             name: '',
             color: getRandomColor(),
         };
-        setTags((prev) => [...prev, newTag]);
+        dispatch(addTag(newTag))
 
         setTimeout(() => {
             inputRefs.current[newTag.id]?.focus();
@@ -34,28 +37,24 @@ function TagList() {
 
     // 태그 이름 변경
     const handleNameChange = (id, value) => {
-        setTags((prev) =>
-            prev.map((tag) => (tag.id === id ? { ...tag, name: value } : tag))
-        );
+        dispatch(updateTagName({ id, name: value }))
     };
 
     // 태그 색상 변경
     const handleColorChange = (id, newColor) => {
-        setTags((prev) =>
-            prev.map((tag) => (tag.id === id ? { ...tag, color: newColor } : tag))
-        );
+        dispatch(updateTagColor({ id, newColor }))
     };
 
     // 태그 이름이 비어있을 때 삭제
     const handleBlur = (id, value) => {
         if (!value.trim()) {
-            setTags((prev) => prev.filter((tag) => tag.id !== id));
+            dispatch(removeTag(id))
         }
     };
 
     // 태그 삭제
     const handleRemove = (id) => {
-        setTags((prev) => prev.filter((tag) => tag.id !== id));
+        dispatch(removeTag(id))
     };
 
     return (

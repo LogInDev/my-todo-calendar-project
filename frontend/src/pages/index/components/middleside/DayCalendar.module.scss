@@ -81,7 +81,8 @@
         line-height: 15px;
         height: 15px;
         flex-shrink: 0;
-        // margin-top: 60px;
+        user-select: none;
+        pointer-events: none;
       }
 
         &__column {

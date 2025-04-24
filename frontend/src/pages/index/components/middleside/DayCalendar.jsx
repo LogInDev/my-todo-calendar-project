@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 // redux
-import { useDispatch } from 'react-redux'
-import { openCreatePanel } from '@/store/rightPanelSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { openCreatePanel, closePanel } from '@/store/rightPanelSlice'
+import { addTodo, updateTodo } from '@/store/todoSlice'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
@@ -17,69 +18,84 @@ function DayCalendar({ date }) {
     const dispatch = useDispatch()
     const isToday = date.isToday()
 
-    // 선택된 날짜에 따라 todos 상태를 업데이트
-    const [todos, setTodos] = useState([
-        {
-            id: '1',
-            title: '세브란스 예약',
-            start: dayjs(date).hour(1).minute(50),
-            end: dayjs(date).hour(1).minute(50),
-            color: '#e6f4ff',
-            isAllDay: false,  // 종일 여부
-        },
-    ])
+    const allTodos = useSelector((state) => state.todo.todos)
+    const todos = allTodos.filter((todo) => dayjs(todo.start).isSame(date, 'day'))
 
-    // drop하는 곳의 정보를 todoItem에 업데이트
-    const updateTodoTime = (todo, newHour, newMinute, isAllDayDrop = false) => {
-        const newStart = isAllDayDrop
-            ? dayjs(date).startOf('day')       // 종일이면 시간 없이 날짜만
-            : dayjs(date).hour(newHour).minute(newMinute)
+    const [dragStart, setDragStart] = useState(null)
+    const [dragEnd, setDragEnd] = useState(null)
+    const [isDragging, setIsDragging] = useState(false)
 
-        const duration = dayjs(todo.end).diff(dayjs(todo.start), 'minute')
+    const handleCellClick = () => {
+        dispatch(closePanel()) // 빈 셀 클릭 시 우측 패널 닫기
+    }
 
-        const newEnd = isAllDayDrop
-            ? newStart.add(15, 'minute')       // 종일 높이용
-            : newStart.add(duration, 'minute')
+    const handleMouseDown = (hour, minute) => {
+        const start = dayjs(date).hour(hour).minute(minute);
+        setIsDragging(true);
+        setDragStart(start);
+        setDragEnd(start);
+    }
 
-        setTodos((prev) =>
-            prev.map((t) =>
-                t.id === todo.id
-                    ? {
-                        ...t,
-                        start: newStart,
-                        end: newEnd,
-                        isAllDay: isAllDayDrop,
-                    }
-                    : t
-            )
+    const handleMouseEnter = (hour, minute) => {
+        if (!isDragging) return;
+        const current = dayjs(date).hour(hour).minute(minute);
+        setDragEnd(current);
+    }
+
+    const handleMouseUp = () => {
+        if (dragStart && dragEnd) {
+            const start = dragStart.isBefore(dragEnd) ? dragStart : dragEnd
+            const end = dragStart.isAfter(dragEnd) ? dragStart : dragEnd
+
+            dispatch(openCreatePanel({
+                title: '',
+                start: start.toISOString(),
+                end: end.add(15, 'minute').toISOString(),
+                isAllDay: false,
+            }))
+        }
+
+        setIsDragging(false)
+        setDragStart(null)
+        setDragEnd(null)
+    }
+
+    const isCellInRange = (hour, minute) => {
+        if (!dragStart || !dragEnd) return false
+        const cell = dayjs(date).hour(hour).minute(minute)
+        const start = dragStart.isBefore(dragEnd) ? dragStart : dragEnd
+        const end = dragStart.isAfter(dragEnd) ? dragStart : dragEnd
+
+        return (
+            cell.isSame(start) ||
+            cell.isSame(end) ||
+            (cell.isAfter(start) && cell.isBefore(end))
         )
     }
 
-    const handleCellClick = (hour, minute, isAllDay = false) => {
-        const baseTime = isAllDay
+    const handleDrop = (item, hour, minute, isAllDay = false) => {
+        const newStart = isAllDay
             ? dayjs(date).startOf('day')
-            : dayjs(date).hour(hour).minute(minute).second(0)
+            : dayjs(date).hour(hour).minute(minute)
+        const duration = dayjs(item.end).diff(dayjs(item.start), 'minute')
+        const newEnd = newStart.add(duration, 'minute')
 
-        console.log(hour, minute, isAllDay)
-        console.log(baseTime.format('YYYY-MM-DD HH:mm:ss'));
-
-
-        dispatch(openCreatePanel({
-            start: baseTime.toISOString(),
-            end: baseTime.add(1, 'hour').toISOString(),
-            title: '',
+        console.log('[Drop: updateTodo]', item.id, newStart.format(), newEnd.format())
+        dispatch(updateTodo({
+            ...item,
+            start: newStart.toISOString(),
+            end: newEnd.toISOString(),
             isAllDay,
         }))
+
     }
 
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.wrapper} onMouseUp={handleMouseUp}>
             {/* 날짜 헤더 */}
             <div className={styles.dateHeader}>
                 <span>{date.format('ddd')}</span>
-                <span className={`${styles.dateHeader__dateBox} ${isToday ? styles.dateHeader__today : styles.dateHeader__notToday}`}>
-                    {date.date()}
-                </span>
+                <span className={`${styles.dateHeader__dateBox} ${isToday ? styles.dateHeader__today : styles.dateHeader__notToday}`}>{date.date()}</span>
             </div>
 
             {/* 일 캘린더 */}
@@ -91,7 +107,7 @@ function DayCalendar({ date }) {
                         isAllDay
                         hour={0}
                         minute={0}
-                        onDrop={updateTodoTime}
+                        onDrop={handleDrop}
                         onClick={handleCellClick}
                     />
                 </div>
@@ -102,24 +118,26 @@ function DayCalendar({ date }) {
                 {/* 시간 그리드 */}
                 {[...Array(24)].map((_, hour) => (
                     <div key={hour} className={styles.hourRow}>
-                        <span className={styles.hourRow__label}>
-                            {hour !== 0 ? `${hour}:00` : ''}
-                        </span>
+                        <span className={styles.hourRow__label}>{hour !== 0 ? `${hour}:00` : ''}</span>
                         <div className={styles.hourRow__column}>
                             {[0, 15, 30, 45].map((minute) => (
                                 <DropCell
                                     key={`${hour}-${minute}`}
                                     hour={hour}
                                     minute={minute}
-                                    onDrop={updateTodoTime}
-                                    onClick={handleCellClick}
+                                    onDrop={handleDrop}
+                                    onClick={() => handleCellClick(hour, minute)}
+                                    onMouseDown={() => handleMouseDown(hour, minute)}
+                                    onMouseEnter={() => handleMouseEnter(hour, minute)}
+                                    isInRange={isDragging && isCellInRange(hour, minute)}
                                 />
                             ))}
                         </div>
                     </div>
                 ))}
 
-                {/* 할 일 */}
+
+                {/* 할 일 목록 렌더링*/}
                 {todos.map((todo) => (
                     <TodoItem key={todo.id} data={todo} />
                 ))}

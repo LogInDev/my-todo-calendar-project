@@ -5,13 +5,18 @@ import { openEditPanel } from '@/store/rightPanelSlice'
 // CSS
 import styles from './TodoItem.module.scss'
 import { useDrag } from 'react-dnd'
+// dayjs
+import dayjs from 'dayjs'
 
 function TodoItem({ data }) {
     const dispatch = useDispatch()
     const { title, start, end, color, isAllDay } = data
 
-    const top = isAllDay ? 0 : start.hour() * 60 + start.minute()
-    const rawDuration = end.diff(start, 'minute')
+    const startTime = dayjs(start)
+    const endTime = dayjs(end)
+
+    const top = isAllDay ? 0 : startTime.hour() * 60 + startTime.minute()
+    const rawDuration = endTime.diff(startTime, 'minute')
     const duration = isAllDay ? 20 : Math.max(rawDuration, 15)
     const isCompact = isAllDay || duration <= 15
 
@@ -27,6 +32,10 @@ function TodoItem({ data }) {
         dispatch(openEditPanel(data))
     }
 
+    useEffect(() => {
+        console.log('[Drag start]', data.id, data.title)
+    }, [data])
+
     return (
         <div
             ref={dragRef} // 드래그 연결
@@ -37,20 +46,20 @@ function TodoItem({ data }) {
                 backgroundColor: color,
                 opacity: isDragging ? 0.6 : 1,
                 cursor: 'move',
-                position: 'absolute', // 절대 위치 필수
-                left: 60, // 필요시 조정 (좌측 라벨과 겹치지 않게)
+                position: 'absolute',
+                left: 60,
                 right: 0,
                 zIndex: isDragging || isAllDay ? 1000 : 2,
             }}
-            onClick={handleClick} // 클릭시 편집모드로 진입
+            onClick={handleClick}
         >
-            <div className={styles.title}>{data.title}</div>
+            <div className={styles.title}>{title}</div>
             {!isAllDay && (
                 <div className={styles.time}>
-                    {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
+                    {`${startTime.format('HH:mm')} - ${endTime.format('HH:mm')}`}
                 </div>
             )}
-        </div >
+        </div>
     )
 }
 

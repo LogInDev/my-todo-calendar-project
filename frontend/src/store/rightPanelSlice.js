@@ -1,13 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const initialState = {
-  mode: 'list',   // 'list' | 'edit' | 'create'
-  todo: null,     // 선택된 할일 정보 or 생성할 일정의 시간 정보
-}
-
 const rightPanelSlice = createSlice({
   name: 'rightPanel',
-  initialState,
+  initialState :{
+    mode: 'list',   // 'list' | 'edit' | 'create'
+    todo: null,     // 선택된 할일 정보 or 생성할 일정의 시간 정보
+  },
   reducers: {
     openEditPanel: (state, action) => {
       state.mode = 'edit'

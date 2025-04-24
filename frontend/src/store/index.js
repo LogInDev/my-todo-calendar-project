@@ -1,10 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit'
 import dateReducer from './dateSlice'
 import rightPanelReducer from './rightPanelSlice'
+import todoReducer from './todoSlice'
+import tagReducer from './tagSlice'
 
-export default configureStore({
+const store = configureStore({
   reducer: {
-    date: dateReducer, // 선택된 날짜를 관리하는 리듀서
-    rightPanel: rightPanelReducer, // 오른쪽 패널의 상태를 관리하는 리듀서
+    date: dateReducer,
+    rightPanel: rightPanelReducer,
+    todo: todoReducer,
+    tag: tagReducer,
   },
 })
+
+// 2. window.store 등록
+if (process.env.NODE_ENV === 'development') {
+  window.store = store
+}
+
+export default store

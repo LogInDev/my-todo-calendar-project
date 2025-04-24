@@ -2,15 +2,14 @@
   padding: 16px;
 
     &__todoItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
 
-    &:hover .closeIcon {
-        visibility: visible;
-    }
-    
+        &:hover .closeIcon {
+            visibility: visible;
+        }
 
         &__closeIcon {
         visibility: hidden;
