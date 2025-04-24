@@ -9,6 +9,7 @@ import styles from './DayCalendar.module.scss'
 // dayjs
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
+import DropCell from '@/components/common/DropCell'
 dayjs.extend(isToday)
 
 function DayCalendar({ date }) {
@@ -25,6 +26,20 @@ function DayCalendar({ date }) {
         },
     ])
 
+    // drop하는 곳의 정보를 todoItem에 업데이트
+    const updateTodoTime = (todo, newHour, newMinute) => {
+        setTodos((prev) =>
+            prev.map((t) => {
+                if (t.id === todo.id) {
+                    const duration = dayjs(t.end).diff(t.start, 'minute')
+                    const newStart = dayjs(date).hour(newHour).minute(newMinute)
+                    const newEnd = newStart.add(duration, 'minute')
+                    return { ...t, start: newStart, end: newEnd }
+                }
+                return t
+            })
+        )
+    }
 
     return (
         <div className={styles.wrapper}>
@@ -39,10 +54,17 @@ function DayCalendar({ date }) {
                 {isToday && <CurrentTimeLine />}
 
                 {[...Array(24)].map((_, hour) => (
-                    <div key={hour} className={styles.timeGrid__timeSlot}>
-                        <div className={styles.timeGrid__hourRow}>
-                            <span className={styles.timeGrid__hourLabel}>{hour}:00</span>
-                            <div className={styles.timeGrid__line}></div>
+                    <div key={hour} className={styles.timeGrid__hourRow}>
+                        <span className={styles.timeGrid__hourLabel}>{hour}:00</span>
+                        <div className={styles.timeGrid__column}>
+                            {[0, 15, 30, 45].map((minute) => (
+                                <DropCell
+                                    key={`${hour}-${minute}`}
+                                    hour={hour}
+                                    minute={minute}
+                                    onDrop={updateTodoTime}
+                                />
+                            ))}
                         </div>
                     </div>
                 ))}

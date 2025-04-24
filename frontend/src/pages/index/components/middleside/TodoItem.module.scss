@@ -2,7 +2,7 @@
   position: absolute;
   left: 60px; // 시간 라벨 옆에 붙이기
   right: 0;
-  border-left: 4px solid #1677ff;
+  border-left: 4px solid main.$color-blue-600;
   border-radius: 4px;
   background-color: #f5f5f5;
   padding: 6px 8px;
@@ -12,6 +12,8 @@
   z-index: 1;
   cursor: move;
   user-select: none;
+
+  width: calc(100vw - 510px); // leftSide(230px) + rightSide(280px) 제외
 
   transition: box-shadow 0.2s ease;
 

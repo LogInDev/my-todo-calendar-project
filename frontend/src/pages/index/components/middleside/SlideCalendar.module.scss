@@ -1,5 +1,5 @@
 .sliderWrapper {
-  width: 100%;
+  width: calc(100vw - 510px); // leftSide(230px) + rightSide(280px) 제외
   overflow: hidden;
   position: relative;
 }

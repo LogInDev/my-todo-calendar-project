@@ -1,0 +1,15 @@
+.cell {
+  position: relative;
+  height: 15px;
+  min-height: 15px;
+  background-color: main.$color-white-000;
+  transition: background-color 0.2s ease;
+  z-index: 1;
+}
+
+.isOver {
+    border: 2px solid main.$color-blue-600;
+    border-radius: 5px;
+    box-shadow: 10px 4px 10px rgba(0, 0, 0, 0.55); 
+    z-index: 10; // 위로 올림
+}
