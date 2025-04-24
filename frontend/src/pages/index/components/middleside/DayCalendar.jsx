@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { groupOverlappingTodos } from '@/utils/todoOverlapUtils'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
 import { openCreatePanel, closePanel } from '@/store/rightPanelSlice'
@@ -25,23 +26,28 @@ function DayCalendar({ date }) {
     const [dragEnd, setDragEnd] = useState(null)
     const [isDragging, setIsDragging] = useState(false)
 
+    // 그룹화
+    const groupedTodos = groupOverlappingTodos(todos)
+
     const handleCellClick = () => {
         dispatch(closePanel()) // 빈 셀 클릭 시 우측 패널 닫기
     }
 
+    // 드래그로 할 일 생성
+    // 마우스 아래로 드래그
     const handleMouseDown = (hour, minute) => {
         const start = dayjs(date).hour(hour).minute(minute);
         setIsDragging(true);
         setDragStart(start);
         setDragEnd(start);
     }
-
+    // 클릭은 할 일 생성 X
     const handleMouseEnter = (hour, minute) => {
         if (!isDragging) return;
         const current = dayjs(date).hour(hour).minute(minute);
         setDragEnd(current);
     }
-
+    // 마우스 위로 드래그
     const handleMouseUp = () => {
         if (dragStart && dragEnd) {
             const start = dragStart.isBefore(dragEnd) ? dragStart : dragEnd
@@ -138,8 +144,15 @@ function DayCalendar({ date }) {
 
 
                 {/* 할 일 목록 렌더링*/}
-                {todos.map((todo) => (
-                    <TodoItem key={todo.id} data={todo} />
+                {groupedTodos.map((group, groupIndex) => (
+                    group.map((todo, indexInGroup) => (
+                        <TodoItem
+                            key={todo.id}
+                            data={todo}
+                            groupSize={group.length}    // 겹치는 할일 수
+                            groupIndex={indexInGroup}   // 몇 번째 column인지
+                        />
+                    ))
                 ))}
             </div>
         </div>

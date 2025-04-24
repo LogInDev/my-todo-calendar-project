@@ -8,7 +8,7 @@ import { useDrag } from 'react-dnd'
 // dayjs
 import dayjs from 'dayjs'
 
-function TodoItem({ data }) {
+function TodoItem({ data, groupSize = 1, groupIndex = 0 }) {
     const dispatch = useDispatch()
     const { title, start, end, color, isAllDay } = data
 
@@ -19,6 +19,14 @@ function TodoItem({ data }) {
     const rawDuration = endTime.diff(startTime, 'minute')
     const duration = isAllDay ? 20 : Math.max(rawDuration, 15)
     const isCompact = isAllDay || duration <= 15
+
+    // 일정이 같은 시간 라인에 겹치는 경우
+    const timeLabelWidth = 58; // 시간 라벨 영역 너비
+    const rightPadding = 60;   // MiddleSide 오른쪽 여유 공간
+    const totalAvailableWidth = `calc(100% - ${timeLabelWidth + rightPadding}px)`;
+
+    const width = `calc(${totalAvailableWidth} / ${groupSize})`;
+    const left = `calc(${timeLabelWidth}px + (${width} * ${groupIndex}))`;
 
     const [{ isDragging }, dragRef] = useDrag({
         type: 'TODO',
@@ -49,6 +57,8 @@ function TodoItem({ data }) {
                 position: 'absolute',
                 left: 60,
                 right: 0,
+                left,
+                width,
                 zIndex: isDragging || isAllDay ? 1000 : 2,
             }}
             onClick={handleClick}
