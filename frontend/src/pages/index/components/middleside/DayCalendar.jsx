@@ -1,16 +1,20 @@
 import React, { useState } from 'react'
+// redux
+import { useDispatch } from 'react-redux'
+import { openCreatePanel } from '@/store/rightPanelSlice'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
+import DropCell from '@/components/common/DropCell'
 // CSS
 import styles from './DayCalendar.module.scss'
 // dayjs
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import DropCell from '@/components/common/DropCell'
 dayjs.extend(isToday)
 
 function DayCalendar({ date }) {
+    const dispatch = useDispatch()
     const isToday = date.isToday()
 
     // 선택된 날짜에 따라 todos 상태를 업데이트
@@ -51,6 +55,23 @@ function DayCalendar({ date }) {
         )
     }
 
+    const handleCellClick = (hour, minute, isAllDay = false) => {
+        const baseTime = isAllDay
+            ? dayjs(date).startOf('day')
+            : dayjs(date).hour(hour).minute(minute).second(0)
+
+        console.log(hour, minute, isAllDay)
+        console.log(baseTime.format('YYYY-MM-DD HH:mm:ss'));
+
+
+        dispatch(openCreatePanel({
+            start: baseTime.toISOString(),
+            end: baseTime.add(1, 'hour').toISOString(),
+            title: '',
+            isAllDay,
+        }))
+    }
+
     return (
         <div className={styles.wrapper}>
             {/* 날짜 헤더 */}
@@ -71,6 +92,7 @@ function DayCalendar({ date }) {
                         hour={0}
                         minute={0}
                         onDrop={updateTodoTime}
+                        onClick={handleCellClick}
                     />
                 </div>
 
@@ -90,6 +112,7 @@ function DayCalendar({ date }) {
                                     hour={hour}
                                     minute={minute}
                                     onDrop={updateTodoTime}
+                                    onClick={handleCellClick}
                                 />
                             ))}
                         </div>

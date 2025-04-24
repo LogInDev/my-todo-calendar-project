@@ -1,15 +1,19 @@
 import React, { useEffect } from 'react'
+// redux
+import { useDispatch } from 'react-redux'
+import { openEditPanel } from '@/store/rightPanelSlice'
+// CSS
 import styles from './TodoItem.module.scss'
 import { useDrag } from 'react-dnd'
 
 function TodoItem({ data }) {
+    const dispatch = useDispatch()
     const { title, start, end, color, isAllDay } = data
 
     const top = isAllDay ? 0 : start.hour() * 60 + start.minute()
     const rawDuration = end.diff(start, 'minute')
     const duration = isAllDay ? 20 : Math.max(rawDuration, 15)
     const isCompact = isAllDay || duration <= 15
-
 
     const [{ isDragging }, dragRef] = useDrag({
         type: 'TODO',
@@ -18,7 +22,10 @@ function TodoItem({ data }) {
             isDragging: monitor.isDragging(),
         }),
     })
-
+    // todoItem 클릭시 편집모드로 진입
+    const handleClick = () => {
+        dispatch(openEditPanel(data))
+    }
 
     return (
         <div
@@ -35,6 +42,7 @@ function TodoItem({ data }) {
                 right: 0,
                 zIndex: isDragging || isAllDay ? 1000 : 2,
             }}
+            onClick={handleClick} // 클릭시 편집모드로 진입
         >
             <div className={styles.title}>{data.title}</div>
             {!isAllDay && (

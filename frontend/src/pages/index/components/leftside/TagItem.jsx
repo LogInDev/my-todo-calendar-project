@@ -27,7 +27,7 @@ function TagItem({ id, name, color, inputRef, onChange, onBlur, onColorChange, o
                 onChange={(e) => onChange(e.target.value)}
                 onBlur={(e) => onBlur(e.target.value)}
                 ref={inputRef}
-                bordered={false}
+                variant="borderless"
                 className={styles.tagInput}
             />
             <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">

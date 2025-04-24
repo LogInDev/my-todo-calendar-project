@@ -4,14 +4,14 @@ import dayjs from 'dayjs'
 const dateSlice = createSlice({
   name: 'date',
   initialState: {
-    selectedDate: dayjs(), // default는 오늘 날짜
+    selectedDate: dayjs().toISOString(), // default는 오늘 날짜
   },
   reducers: {
-    setDate: (state, action) => {
+    setSelectedDate: (state, action) => {
       state.selectedDate = action.payload
     },
   },
 })
 
-export const { setDate } = dateSlice.actions
+export const { setSelectedDate } = dateSlice.actions
 export default dateSlice.reducer

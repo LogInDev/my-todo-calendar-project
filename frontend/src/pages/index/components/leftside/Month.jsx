@@ -1,7 +1,7 @@
 import React from 'react'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
-import { setDate } from '@/store/dateSlice'
+import { setSelectedDate } from '@/store/dateSlice'
 // CSS
 import styles from './Month.module.scss'
 // antd
@@ -16,14 +16,16 @@ dayjs.extend(localeData);
 
 const Month = () => {
     const dispatch = useDispatch()
-    const selectedDate = useSelector((state) => state.date.selectedDate)
+    // Redux 상태는 문자열 → dayjs로 파싱
+    const selectedDateStr = useSelector((state) => state.date.selectedDate)
+    const selectedDate = dayjs(selectedDateStr)
 
     const onMonthChange = (direction) => {
         const newDate = direction === 'prev'
             ? dayjs(selectedDate).subtract(1, 'month')
             : dayjs(selectedDate).add(1, 'month')
 
-        dispatch(setDate(newDate))
+        dispatch(setSelectedDate(newDate.toISOString()))
     }
 
     return (
@@ -49,9 +51,9 @@ const Month = () => {
             <Calendar
                 fullscreen={false}
                 headerRender={() => null} // 기본 헤더 제거
-                value={dayjs(selectedDate)}
-                onSelect={(date) => dispatch(setDate(date))}
-                dateFullCellRender={(date) => {
+                value={selectedDate}
+                onSelect={(date) => dispatch(setSelectedDate(date.toISOString()))}
+                fullCellRender={(date) => {
                     const isToday = date.isSame(dayjs(), 'day')
                     const isSelected = date.isSame(selectedDate, 'day')
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 // redux
 import { useSelector, useDispatch } from 'react-redux';
-import { setDate } from '@/store/dateSlice';
+import { setSelectedDate } from '@/store/dateSlice';
 // Components
 import MonthCalendar from './MonthCalendar';
 import SlideCalendar from './SlideCalendar';
@@ -17,7 +17,8 @@ import dayjs from 'dayjs';
 function MiddleSide() {
     // 현재 선택된 날짜를 관리하는 상태
     const dispatch = useDispatch()
-    const selectedDate = useSelector((state) => state.date.selectedDate)
+    const selectedDateStr = useSelector((state) => state.date.selectedDate)
+    const selectedDate = dayjs(selectedDateStr)
     // 선택된 컨텐츠 옵션
     const [viewType, setViewType] = useState('day')
 
@@ -33,7 +34,7 @@ function MiddleSide() {
 
         setTimeout(() => {
             const newDate = dayjs(selectedDate)[isPrev ? 'subtract' : 'add'](1, viewType)
-            dispatch(setDate(newDate))
+            dispatch(setSelectedDate(newDate.toISOString()))
             setIsSliding(false)
             setSlideIndex(1)
         }, 400)
@@ -76,7 +77,7 @@ function MiddleSide() {
                         ]}
                         onChange={(value) => setViewType(value)}
                     />
-                    <Button onClick={() => dispatch(setDate(dayjs()))}>오늘</Button>
+                    <Button onClick={() => dispatch(setSelectedDate(dayjs().toISOString()))}>오늘</Button>
                     {viewType === 'month' ? (
                         <>
                             <Button onClick={() => handleSlide('prev')} icon={<UpOutlined />} />
