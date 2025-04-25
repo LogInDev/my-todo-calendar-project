@@ -15,6 +15,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
+    "react-router-dom": "^7.5.2",
     "react-scripts": "5.0.1",
     "sass": "^1.87.0",
     "web-vitals": "^2.1.4"
