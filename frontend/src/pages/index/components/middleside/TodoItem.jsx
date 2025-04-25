@@ -17,7 +17,9 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     const startTime = dayjs(start)
     const endTime = dayjs(end)
 
-    // 🔄 현재 보여주는 날짜 기준으로 일정 잘라내기
+    const isMultiDay = !startTime.isSame(endTime, 'day') // 여러 날짜 일정
+
+    // 현재 보여주는 날짜 기준으로 일정 잘라내기
     const currentDayStart = dayjs(date).startOf('day')
     const currentDayEnd = dayjs(date).endOf('day')
 
@@ -36,7 +38,7 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
         console.log('[Drag start]', data.id, data.title)
     }, [data])
 
-    // ⚠️ 만약 일정이 이 날짜에 포함되지 않으면 렌더링 X
+    // 만약 일정이 이 날짜에 포함되지 않으면 렌더링 X
     if (visibleStart.isAfter(visibleEnd)) return null
 
     const top = isAllDay ? 0 : visibleStart.diff(currentDayStart, 'minute')
@@ -77,7 +79,9 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
             <div className={styles.title}>{title}</div>
             {!isAllDay && (
                 <div className={styles.time}>
-                    {`${startTime.format('HH:mm')} - ${endTime.format('HH:mm')}`}
+                    {isMultiDay
+                        ? <>{startTime.format('MM-DD HH:mm')} < br /> → {endTime.format('MM-DD HH:mm')}</>
+                        : `${startTime.format('HH:mm')} → ${endTime.format('HH:mm')}`}
                 </div>
             )}
         </div>

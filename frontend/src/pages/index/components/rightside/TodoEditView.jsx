@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { nanoid } from 'nanoid'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
 import { addTodo, updateTodo, deleteTodo } from '@/store/todoSlice'
@@ -14,6 +15,8 @@ function TodoEditView({ todo }) {
     const dispatch = useDispatch()
     const isEdit = !!todo?.id
     const tags = useSelector((state) => state.tag.tagList)
+    const [isNew, setIsNew] = useState(!todo?.id)
+    const [localId, setLocalId] = useState(() => todo?.id || nanoid())
 
     const [title, setTitle] = useState('')
     const [isAllDay, setIsAllDay] = useState(false)
@@ -21,16 +24,13 @@ function TodoEditView({ todo }) {
     const [endDate, setEndDate] = useState(dayjs().add(1, 'hour'))
     const [selectedTag, setSelectedTag] = useState('')
 
-    const [isNew, setIsNew] = useState(!todo?.id) // id 없으면 새 항목
-    const [generatedId] = useState(() => todo?.id || Date.now().toString())
-
     const syncTodo = (custom = {}) => {
         const finalTitle = custom.title ?? title
         if (!finalTitle.trim()) return
 
         const payload = {
             ...todo,
-            id: generatedId,
+            id: localId, // 항상 고정된 localId 사용
             title: finalTitle,
             start: (custom.start || startDate).format(),
             end: (custom.end || endDate).format(),
@@ -40,7 +40,7 @@ function TodoEditView({ todo }) {
 
         if (isNew) {
             dispatch(addTodo(payload))
-            setIsNew(false)
+            setIsNew(false) // 한번 생성 후엔 업데이트로 전환
         } else {
             dispatch(updateTodo(payload))
         }
@@ -52,8 +52,18 @@ function TodoEditView({ todo }) {
         setIsAllDay(todo?.isAllDay || false)
         setStartDate(dayjs(todo?.start) || dayjs())
         setEndDate(dayjs(todo?.end) || dayjs().add(1, 'hour'))
-        if (todo?.tagId) setSelectedTag(todo.tagId)
-        else if (tags.length > 0) setSelectedTag(tags[0].id)
+        if (!todo?.id) {
+            setIsNew(true)
+            setLocalId(nanoid())
+        } else {
+            setIsNew(false)
+            setLocalId(todo.id)
+        }
+        if (todo?.tagId) {
+            setSelectedTag(todo.tagId)
+        } else {
+            setSelectedTag(tags[0].id) // 항상 첫 번째 태그를 초기 선택값으로 설정
+        }
     }, [todo, tags])
 
     // todo 수정 시 바로 반영
