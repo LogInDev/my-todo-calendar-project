@@ -3,7 +3,7 @@ import styles from './LoginPage.module.scss'
 
 function LoginPage() {
     const handleKakaoLogin = () => {
-        window.location.href = 'https://kauth.kakao.com/oauth/authorize?...' // 실제 redirect URL
+        window.location.href = 'http://localhost:8080/oauth2/authorize/kakao'
     }
 
     return (
