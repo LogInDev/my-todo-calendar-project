@@ -1,9 +1,38 @@
+.header{
+  margin-bottom: 10px;
+
+  &__title{
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  // 삭제 버튼 스타일
+  &__deleteIcon{
+      font-size: 20px;
+      color: main.$color-gray-500;
+      cursor: pointer;
+  }
+}
+
+.disabledTimePicker{
+    pointer-events: none;
+    cursor: not-allowed;
+    color: main.$color-gray-300;
+    :global {
+      .ant-picker-input{
+        color: main.$color-gray-300;
+      
+      }
+    }
+}
+
+// datePicker 스타일을 수정하기 위한 CSS
 :global {
   .ant-picker-dropdown {
-    .ant-picker-panel {
+    .ant-picker-date-panel {
       background-color: rgba(0, 0, 0, 0.85) !important; // 검정색 + 투명
       color: white;
-
+      zoom: 0.8;
       // 테두리 없애거나 스타일 변경
       box-shadow: none;
       border: none;
@@ -28,16 +57,19 @@
         color: white;
       }
     }
-
-    .ant-picker-footer{
-        background-color: rgba(0, 0, 0, 0.85) !important; // 검정색 + 투명
-        border: 1px solid main.$color-gray-700;
-        .ant-picker-now-btn{
-            color: white ;
-            &:hover{
-                color: main.$color-blue-400;
-            }
-        }
-    }
+      .ant-picker-ranges{
+          background-color: rgba(0, 0, 0, 0.85) !important; // 검정색 + 투명
+          border: 1px solid main.$color-gray-700;
+          .ant-picker-now-btn{
+              color: white ;
+              &:hover{
+                  color: main.$color-blue-400;
+              }
+          }
+      }
+      .ant-picker-ok{
+        display:none !important
+      }
+    
   }
 }

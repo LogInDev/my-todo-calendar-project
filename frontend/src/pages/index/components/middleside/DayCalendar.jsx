@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { groupOverlappingTodos } from '@/utils/todoOverlapUtils'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
-import { openCreatePanel, closePanel } from '@/store/rightPanelSlice'
-import { addTodo, updateTodo } from '@/store/todoSlice'
+import { openCreatePanel } from '@/store/rightPanelSlice'
+import { updateTodo } from '@/store/todoSlice'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
@@ -18,50 +18,61 @@ dayjs.extend(isToday)
 function DayCalendar({ date }) {
     const dispatch = useDispatch()
     const isToday = date.isToday()
-
+    // 종일, 일반 분리
     const allTodos = useSelector((state) => state.todo.todos)
-    const todos = allTodos.filter((todo) => dayjs(todo.start).isSame(date, 'day'))
+    const dayTodos = allTodos.filter(todo =>
+        dayjs(todo.start).isBefore(date.endOf('day')) &&
+        dayjs(todo.end).isAfter(date.startOf('day'))
+    )
+    // 종일
+    const allDayTodos = dayTodos.filter(todo => todo.isAllDay)
+    const timedTodos = dayTodos.filter(todo => !todo.isAllDay)
 
     const [dragStart, setDragStart] = useState(null)
     const [dragEnd, setDragEnd] = useState(null)
     const [isDragging, setIsDragging] = useState(false)
+    const [isAllDayDrag, setIsAllDayDrag] = useState(false)
 
     // 그룹화
-    const groupedTodos = groupOverlappingTodos(todos)
-
-    const handleCellClick = () => {
-        dispatch(closePanel()) // 빈 셀 클릭 시 우측 패널 닫기
-    }
+    const groupedAllDayTodos = groupOverlappingTodos(allDayTodos)
+    const groupedTimedTodos = groupOverlappingTodos(timedTodos)
 
     // 드래그로 할 일 생성
     // 마우스 아래로 드래그
-    const handleMouseDown = (hour, minute) => {
-        const start = dayjs(date).hour(hour).minute(minute);
-        setIsDragging(true);
-        setDragStart(start);
-        setDragEnd(start);
+    const handleMouseDown = (hour, minute, isAllDay = false) => {
+        const start = isAllDay ? dayjs(date).startOf('day') : dayjs(date).hour(hour).minute(minute)
+        setIsDragging(true)
+        setIsAllDayDrag(isAllDay)
+        setDragStart(start)
+        setDragEnd(start)
     }
-    // 클릭은 할 일 생성 X
-    const handleMouseEnter = (hour, minute) => {
-        if (!isDragging) return;
-        const current = dayjs(date).hour(hour).minute(minute);
-        setDragEnd(current);
+
+    const handleMouseEnter = (hour, minute, isAllDay = false) => {
+        if (!isDragging || isAllDay !== isAllDayDrag) return
+        const current = isAllDay ? dayjs(date).startOf('day') : dayjs(date).hour(hour).minute(minute)
+        setDragEnd(current)
     }
     // 마우스 위로 드래그
     const handleMouseUp = () => {
         if (dragStart && dragEnd) {
             const start = dragStart.isBefore(dragEnd) ? dragStart : dragEnd
-            const end = dragStart.isAfter(dragEnd) ? dragStart : dragEnd
+            const endRaw = dragStart.isAfter(dragEnd) ? dragStart.clone() : dragEnd.clone()
+
+            const minuteDiff = Math.abs(start.diff(endRaw, 'minute'))
+            const end = minuteDiff < 5
+                ? start.clone().add(15, 'minute')
+                : endRaw.clone().add(15, 'minute')
 
             dispatch(openCreatePanel({
                 title: '',
-                start: start.toISOString(),
-                end: end.add(15, 'minute').toISOString(),
-                isAllDay: false,
+                start: start.format(),
+                end: isAllDayDrag ? start.endOf('day').format() : end.format(),
+                isAllDay: isAllDayDrag,
             }))
         }
 
         setIsDragging(false)
+        setIsAllDayDrag(false)
         setDragStart(null)
         setDragEnd(null)
     }
@@ -89,8 +100,8 @@ function DayCalendar({ date }) {
         console.log('[Drop: updateTodo]', item.id, newStart.format(), newEnd.format())
         dispatch(updateTodo({
             ...item,
-            start: newStart.toISOString(),
-            end: newEnd.toISOString(),
+            start: newStart.format(),
+            end: newEnd.format(),
             isAllDay,
         }))
 
@@ -105,7 +116,7 @@ function DayCalendar({ date }) {
             </div>
 
             {/* 일 캘린더 */}
-            <div className={styles.timeGrid}>
+            <div className={styles.timeGrid} >
                 {/* 종일 영역 */}
                 <div className={styles.allDayRow}>
                     <span className={styles.allDayRow__label}>종일</span>
@@ -114,8 +125,23 @@ function DayCalendar({ date }) {
                         hour={0}
                         minute={0}
                         onDrop={handleDrop}
-                        onClick={handleCellClick}
+                        onMouseDown={() => handleMouseDown(0, 0, true)}
+                        onMouseEnter={() => handleMouseEnter(0, 0, true)}
+                        isInRange={isDragging && isAllDayDrag}
                     />
+                    {/* 종일 할 일 렌더링 */}
+                    {groupedAllDayTodos.map((group, groupIndex) =>
+                        group.map((date, indexInGroup) => (
+                            <TodoItem
+                                key={date.id}
+                                data={date}
+                                date={date}
+                                groupSize={group.length}
+                                groupIndex={indexInGroup}
+                                isAllDay={true}
+                            />
+                        ))
+                    )}
                 </div>
 
                 {/* 현재 시간 표시 라인 */}
@@ -132,7 +158,6 @@ function DayCalendar({ date }) {
                                     hour={hour}
                                     minute={minute}
                                     onDrop={handleDrop}
-                                    onClick={() => handleCellClick(hour, minute)}
                                     onMouseDown={() => handleMouseDown(hour, minute)}
                                     onMouseEnter={() => handleMouseEnter(hour, minute)}
                                     isInRange={isDragging && isCellInRange(hour, minute)}
@@ -143,12 +168,13 @@ function DayCalendar({ date }) {
                 ))}
 
 
-                {/* 할 일 목록 렌더링*/}
-                {groupedTodos.map((group, groupIndex) => (
+                {/* 할 일 목록 렌더링 */}
+                {groupedTimedTodos.map((group, groupIndex) => (
                     group.map((todo, indexInGroup) => (
                         <TodoItem
                             key={todo.id}
                             data={todo}
+                            date={date}
                             groupSize={group.length}    // 겹치는 할일 수
                             groupIndex={indexInGroup}   // 몇 번째 column인지
                         />

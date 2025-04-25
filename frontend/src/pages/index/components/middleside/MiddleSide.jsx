@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 // redux
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedDate } from '@/store/dateSlice';
+import { closePanel } from '@/store/rightPanelSlice';
 // Components
 import MonthCalendar from './MonthCalendar';
 import SlideCalendar from './SlideCalendar';
@@ -34,7 +35,7 @@ function MiddleSide() {
 
         setTimeout(() => {
             const newDate = dayjs(selectedDate)[isPrev ? 'subtract' : 'add'](1, viewType)
-            dispatch(setSelectedDate(newDate.toISOString()))
+            dispatch(setSelectedDate(newDate.format()))
             setIsSliding(false)
             setSlideIndex(1)
         }, 400)
@@ -61,10 +62,15 @@ function MiddleSide() {
         }
     }
 
+    // rightSide 패널 닫기
+    const handleCellClick = () => {
+        dispatch(closePanel())
+    }
+
     return (
         <div onWheel={handleWheel}> {/* 좌우 휠 이벤트 감지 */}
             {/* middelSide 헤더 */}
-            <div className={styles.header}>
+            <div className={styles.header} onClick={handleCellClick}>
                 <span className={styles.header__dateText}>
                     {selectedDate.format('YYYY')} <strong>{selectedDate.format('M월')}</strong>
                 </span>
@@ -77,7 +83,7 @@ function MiddleSide() {
                         ]}
                         onChange={(value) => setViewType(value)}
                     />
-                    <Button onClick={() => dispatch(setSelectedDate(dayjs().toISOString()))}>오늘</Button>
+                    <Button onClick={() => dispatch(setSelectedDate(dayjs().format()))}>오늘</Button>
                     {viewType === 'month' ? (
                         <>
                             <Button onClick={() => handleSlide('prev')} icon={<UpOutlined />} />

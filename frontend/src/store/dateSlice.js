@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 const dateSlice = createSlice({
   name: 'date',
   initialState: {
-    selectedDate: dayjs().toISOString(), // default는 오늘 날짜
+    selectedDate: dayjs().format(), // default는 오늘 날짜
   },
   reducers: {
     setSelectedDate: (state, action) => {

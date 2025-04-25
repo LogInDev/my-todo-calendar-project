@@ -25,7 +25,7 @@ const Month = () => {
             ? dayjs(selectedDate).subtract(1, 'month')
             : dayjs(selectedDate).add(1, 'month')
 
-        dispatch(setSelectedDate(newDate.toISOString()))
+        dispatch(setSelectedDate(newDate.format()))
     }
 
     return (
@@ -52,7 +52,7 @@ const Month = () => {
                 fullscreen={false}
                 headerRender={() => null} // 기본 헤더 제거
                 value={selectedDate}
-                onSelect={(date) => dispatch(setSelectedDate(date.toISOString()))}
+                onSelect={(date) => dispatch(setSelectedDate(date.format()))}
                 fullCellRender={(date) => {
                     const isToday = date.isSame(dayjs(), 'day')
                     const isSelected = date.isSame(selectedDate, 'day')

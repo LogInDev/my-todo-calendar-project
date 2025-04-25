@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
-import { addTodo, updateTodo } from '@/store/todoSlice'
+import { addTodo, updateTodo, deleteTodo } from '@/store/todoSlice'
+import { closePanel } from '@/store/rightPanelSlice'
 // CSS
 import styles from './TodoEditView.module.scss'
 // antd
-import { Input, TimePicker, DatePicker, Switch, Select } from 'antd'
+import { Input, TimePicker, DatePicker, Switch, Select, Button } from 'antd'
+import { DeleteFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
 function TodoEditView({ todo }) {
@@ -30,8 +32,8 @@ function TodoEditView({ todo }) {
             ...todo,
             id: generatedId,
             title: finalTitle,
-            start: (custom.start || startDate).toISOString(),
-            end: (custom.end || endDate).toISOString(),
+            start: (custom.start || startDate).format(),
+            end: (custom.end || endDate).format(),
             isAllDay: custom.isAllDay ?? isAllDay,
             tagId: custom.tagId || selectedTag,
         }
@@ -52,21 +54,20 @@ function TodoEditView({ todo }) {
         setEndDate(dayjs(todo?.end) || dayjs().add(1, 'hour'))
         if (todo?.tagId) setSelectedTag(todo.tagId)
         else if (tags.length > 0) setSelectedTag(tags[0].id)
-        console.log(todo)
     }, [todo, tags])
 
     // todo 수정 시 바로 반영
     // 시작 시간
-    const handleStartChange = (v) => {
-        if (!v) return
-        const updated = startDate.hour(v.hour()).minute(v.minute())
+    const handleStartChange = (time) => {
+        if (!time) return
+        const updated = startDate.hour(time.$H).minute(time.$m)
         setStartDate(updated)
         syncTodo({ start: updated })
     }
 
-    const handleEndChange = (v) => {
-        if (!v) return
-        const updated = endDate.hour(v.hour()).minute(v.minute())
+    const handleEndChange = (time) => {
+        if (!time) return
+        const updated = endDate.hour(time.$H).minute(time.$m)
         setEndDate(updated)
         syncTodo({ end: updated })
     }
@@ -92,6 +93,8 @@ function TodoEditView({ todo }) {
     }
 
     const handleAllDayChange = (v) => {
+        console.log(v);
+
         setIsAllDay(v)
         const start = v ? startDate.startOf('day') : startDate
         const end = v ? endDate.startOf('day') : endDate
@@ -105,10 +108,27 @@ function TodoEditView({ todo }) {
         syncTodo({ tagId: v })
     }
 
+    // 삭제 버튼 클릭 시
+    const handleDelete = () => {
+        if (!todo?.id) return
+        dispatch(deleteTodo(todo.id))
+        dispatch(closePanel())
+    }
 
     return (
         <div style={{ padding: 16 }}>
-            <h3>{isEdit ? 'Edit Todo' : 'Add Todo'}</h3>
+            <div className={styles.header}>
+                <span className={styles.header__title}>{isEdit ? 'Edit Todo' : 'Add Todo'}</span>
+                {/* 삭제 버튼 */}
+                {isEdit && (
+                    < Button
+                        type="text"
+                        icon={<DeleteFilled />}
+                        onClick={handleDelete}
+                        className={styles.header__deleteIcon}
+                    />
+                )}
+            </div>
             {/* 제목 입력 */}
             <Input
                 placeholder="할 일을 작성하세요"
@@ -119,54 +139,44 @@ function TodoEditView({ todo }) {
             />
 
             {/* 시간/날짜 입력 */}
-            {isAllDay ? (
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <DatePicker value={startDate} onChange={handleStartDateChange} style={{ flex: 1, maxWidth: 140 }} />
-                    <span>→</span>
-                    <DatePicker value={endDate} onChange={handleEndDateChange} style={{ flex: 1, maxWidth: 140 }} />
-                </div>
-            ) : (
-                <>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                        <TimePicker
-                            value={startDate}
-                            onChange={handleStartChange}
-                            format="HH:mm"
-                            minuteStep={5}
-                            showNow={false}
-                            allowClear={false}
-                            variant="borderless"
-                            style={{ flex: 1, maxWidth: 120 }}
-                        />
-                        <span>→</span>
-                        <TimePicker
-                            value={endDate}
-                            onChange={handleEndChange}
-                            format="HH:mm"
-                            minuteStep={5}
-                            showNow={false}
-                            allowClear={false}
-                            variant="borderless"
-                            style={{ flex: 1, maxWidth: 120 }}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                        <DatePicker
-                            value={startDate}
-                            onChange={handleStartDateChange}
-                            style={{ flex: 1, maxWidth: 140 }}
-                            format="YY-MM-DD"
-                        />
-                        <span>→</span>
-                        <DatePicker
-                            value={endDate}
-                            onChange={handleEndDateChange}
-                            style={{ flex: 1, maxWidth: 140 }}
-                            format="YY-MM-DD"
-                        />
-                    </div>
-                </>
-            )}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }} className={isAllDay ? styles.disabledTimePicker : ''}>
+                <TimePicker
+                    value={startDate}
+                    onChange={handleStartChange} handleEndChange
+                    changeOnScroll
+                    needConfirm={false}
+                    format="HH:mm"
+                    variant="borderless"
+                    style={{ flex: 1, maxWidth: 120 }}
+                />
+                <span>→</span>
+                <TimePicker
+                    value={endDate}
+                    onChange={handleEndChange}
+                    changeOnScroll
+                    needConfirm={false}
+                    format="HH:mm"
+                    variant="borderless"
+                    style={{ flex: 1, maxWidth: 120 }}
+                />
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <DatePicker
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    style={{ flex: 1, maxWidth: 140 }}
+                    format="YY-MM-DD"
+                    variant="borderless"
+                />
+                <span>→</span>
+                <DatePicker
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    style={{ flex: 1, maxWidth: 140 }}
+                    format="YY-MM-DD"
+                    variant="borderless"
+                />
+            </div>
 
             {/* 종일 */}
             <div style={{ marginBottom: 8 }}>
