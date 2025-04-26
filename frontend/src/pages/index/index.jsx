@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios';
+import React, { useState } from 'react'
 // redux
 import { useDispatch } from 'react-redux'
 import { closePanel } from '@/store/rightPanelSlice'
@@ -21,24 +20,6 @@ function MainPage() {
     const handleCellClick = () => {
         dispatch(closePanel())
     }
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        axios.get('http://localhost:8080/api/me', {
-            withCredentials: true,
-        })
-            .then((res) => {
-                console.log('로그인 유저:', res.data);
-                // 사용자 정보 상태 저장 등도 가능
-            })
-            .catch((err) => {
-                if (err.response?.status === 401) {
-                    console.log('로그인 안됨 → /login으로 이동');
-                    navigate('/login');
-                }
-            });
-    }, []);
 
     return (
         <div className={styles.container}>

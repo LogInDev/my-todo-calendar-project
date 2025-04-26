@@ -1,9 +1,10 @@
 import React from 'react'
+import { API_BASE_URL } from '@/config'
 import styles from './LoginPage.module.scss'
 
 function LoginPage() {
     const handleKakaoLogin = () => {
-        window.location.href = 'http://localhost:8080/oauth2/authorize/kakao'
+        window.location.href = `${API_BASE_URL}/oauth2/authorize/kakao`
     }
 
     return (
