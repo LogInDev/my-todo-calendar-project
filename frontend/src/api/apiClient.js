@@ -13,22 +13,34 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && (error.response.status === 401 ||error.response.status === 302 )&& !originalRequest._retry) {
-      console.log('AccessToken 만료 → 자동 refresh 시도');
+    if (error.response) {
+      const { status, data } = error.response;
 
-      originalRequest._retry = true;
+      // 403 이면서 "Invalid JWT" 같은 에러메시지가 있다면 바로 로그아웃
+      if (status === 403 && data?.message?.includes('Invalid JWT')) {
+        console.error('Invalid JWT → 바로 로그아웃 처리');
+        logout();
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
 
-      try {
-        // 1. refresh 요청
-        await axios.post(`${API_BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
+      // 401, 302는 refresh 시도
+      if ((status === 401 || status === 302) && !originalRequest._retry) {
+        console.log('AccessToken 만료 → 자동 refresh 시도');
 
-        // 2. refresh 성공 -> 원래 요청 다시 재시도
-        return apiClient(originalRequest);
+        originalRequest._retry = true;
 
-      } catch (refreshError) {
-        console.error('RefreshToken 만료 → 로그아웃 처리');
-        logout(); 
-        return Promise.reject(refreshError);
+        try {
+          // refresh token 요청
+          await axios.post(`${API_BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
+          // refresh 성공하면 원래 요청 재시도
+          return apiClient(originalRequest);
+        } catch (refreshError) {
+          console.error('RefreshToken 만료 → 로그아웃 처리');
+          logout();
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        }
       }
     }
 

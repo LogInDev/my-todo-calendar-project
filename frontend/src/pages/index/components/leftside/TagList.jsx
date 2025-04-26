@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 // redux
 import { useDispatch, useSelector } from 'react-redux';
-import { addTag, loadTags, updateTagName, updateTagColor, removeTag } from '@/store/tagSlice';
+import { addTag, loadTags, updateTagAsync, removeTag } from '@/store/tagSlice';
 // CSS
 import styles from './TagList.module.scss'
 import { getRandomColor } from '@utils/colorUtils'
@@ -46,14 +46,21 @@ function TagList() {
         }
     };
 
+    // 태그가 모두 삭제됐을 때 New Tag 자동 추가
+    useEffect(() => {
+        if (tagList.length === 0) {
+            dispatch(addTag({ name: 'New Tag', color: getRandomColor() }));
+        }
+    }, [tagList, dispatch]);
+
     // 태그 이름 변경
     const handleNameChange = (id, value) => {
-        dispatch(updateTagName({ id, name: value }))
+        dispatch(updateTagAsync({ id, name: value, color: undefined }));
     };
 
     // 태그 색상 변경
     const handleColorChange = (id, newColor) => {
-        dispatch(updateTagColor({ id, newColor }))
+        dispatch(updateTagAsync({ id, name: undefined, color: newColor }));
     };
 
     // 태그 이름이 비어있을 때 삭제
@@ -80,7 +87,7 @@ function TagList() {
                 </div>
             </div>
             {/* 태그 리스트 */}
-            <div className={styles.tagList}>
+            <div>
                 {tagList.map((tag) => (
                     <TagItem
                         key={tag.id}

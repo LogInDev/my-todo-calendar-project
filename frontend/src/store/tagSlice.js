@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchTags, createTag, deleteTag } from '@/api/tagApi';
-import { getRandomColor } from '@/utils/colorUtils'
+import { fetchTags, createTag, deleteTag, updateTag } from '@/api/tagApi';
 
 export const loadTags = createAsyncThunk('tag/loadTags', async () => {
   const response = await fetchTags();
@@ -17,27 +16,21 @@ export const removeTag = createAsyncThunk('tag/removeTag', async (tagId) => {
   return tagId;
 });
 
+export const updateTagAsync = createAsyncThunk(
+  'tag/updateTag',
+  async ({ id, name, color }) => {
+    const response = await updateTag(id, { name, color });
+    return response.data;
+  }
+);
+
+
 const tagSlice = createSlice({
   name: 'tag',
   initialState:{
     tagList: [],
   },
-  reducers: {
-    // 동기적으로 태그 리스트에 추가 (필요 시)
-    addTagSync: (state, action) => {
-      state.tagList.push(action.payload);
-    },
-    updateTagName: (state, action) => {
-      const { id, name } = action.payload;
-      const tag = state.tagList.find(tag => tag.id === id);
-      if (tag) tag.name = name;
-    },
-    updateTagColor: (state, action) => {
-      const { id, color } = action.payload;
-      const tag = state.tagList.find(tag => tag.id === id);
-      if (tag) tag.color = color;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(loadTags.fulfilled, (state, action) => {
@@ -48,9 +41,16 @@ const tagSlice = createSlice({
       })
       .addCase(removeTag.fulfilled, (state, action) => {
         state.tagList = state.tagList.filter(tag => tag.id !== action.payload);
+      })
+      .addCase(updateTagAsync.fulfilled, (state, action) => {
+        const updatedTag = action.payload;
+        const tag = state.tagList.find(tag => tag.id === updatedTag.id);
+        if (tag) {
+          tag.name = updatedTag.name;
+          tag.color = updatedTag.color;
+        }
       });
   },
 });
 
-export const { addTagSync, updateTagName, updateTagColor } = tagSlice.actions;
 export default tagSlice.reducer;

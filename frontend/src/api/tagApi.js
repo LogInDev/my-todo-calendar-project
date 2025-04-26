@@ -11,3 +11,7 @@ export const createTag = (tagData) => {
 export const deleteTag = (tagId) => {
   return apiClient.delete(`/api/tags/${tagId}`);
 };
+
+export const updateTag = (tagId, updateData) => {
+  return apiClient.patch(`/api/tags/${tagId}`, updateData);
+};
