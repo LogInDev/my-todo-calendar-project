@@ -7,5 +7,6 @@ public record TodoRequest(
         LocalDateTime startDatetime,
         LocalDateTime endDatetime,
         Boolean isAllDay,
-        Long tagId
+        Long tagId,
+        Boolean completed
 ) {}

@@ -32,7 +32,11 @@ public class Todo extends BaseEntity {
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
 
+    @Column(nullable = false)
+    private Boolean completed = false;
+
     private Boolean isAllDay = false;
+
 
     public void updateFromRequest(TodoRequest request, TagRepository tagRepository) {
         if (request.title() != null) {
@@ -46,6 +50,9 @@ public class Todo extends BaseEntity {
         }
         if (request.isAllDay() != null) {
             this.isAllDay = request.isAllDay();
+        }
+        if(request.completed() != null) {
+            this.completed = request.completed();
         }
         if (request.tagId() != null) {
             this.tag = tagRepository.findById(request.tagId())

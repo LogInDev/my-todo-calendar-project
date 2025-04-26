@@ -15,6 +15,7 @@ public class TodoResponse {
     private LocalDateTime endDatetime;
     private Boolean isAllDay;
     private Long tagId; // tag가 없으면 null
+    private Boolean completed;
 
     public static TodoResponse from(Todo todo) {
         return TodoResponse.builder()
@@ -24,6 +25,7 @@ public class TodoResponse {
                 .endDatetime(todo.getEndDatetime())
                 .isAllDay(todo.getIsAllDay())
                 .tagId(todo.getTag() != null ? todo.getTag().getId() : null)
+                .completed(todo.getCompleted())
                 .build();
     }
 }
