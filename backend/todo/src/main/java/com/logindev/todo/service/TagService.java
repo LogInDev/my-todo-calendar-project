@@ -4,6 +4,7 @@ import com.logindev.todo.domain.Tag;
 import com.logindev.todo.domain.User;
 import com.logindev.todo.dto.tag.TagRequest;
 import com.logindev.todo.dto.tag.TagResponse;
+import com.logindev.todo.dto.tag.TagUpdateRequest;
 import com.logindev.todo.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -45,5 +46,18 @@ public class TagService {
             throw new IllegalArgumentException("User not owned by this tag");
         }
         tagRepository.delete(tag);
+    }
+
+    @Transactional
+    public TagResponse updateTag(User user, Long tagId, TagUpdateRequest request) {
+        final Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
+
+        if(!tag.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("User not owned by this tag");
+        }
+
+        tag.update(request.name(), request.color());
+        return TagResponse.from(tag);
     }
 }

@@ -13,7 +13,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (error.response && (error.response.status === 401 ||error.response.status === 302 )&& !originalRequest._retry) {
       console.log('AccessToken 만료 → 자동 refresh 시도');
 
       originalRequest._retry = true;

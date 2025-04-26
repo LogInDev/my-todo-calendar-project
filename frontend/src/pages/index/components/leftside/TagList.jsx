@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from 'react'
-import { nanoid } from 'nanoid'; // 고유 id 생성용
 // redux
 import { useDispatch, useSelector } from 'react-redux';
-import { addTag, ensureDefaultTag, updateTagName, updateTagColor, removeTag } from '@/store/tagSlice';
+import { addTag, loadTags, updateTagName, updateTagColor, removeTag } from '@/store/tagSlice';
 // CSS
 import styles from './TagList.module.scss'
 import { getRandomColor } from '@utils/colorUtils'
@@ -12,27 +11,39 @@ import TagItem from './TagItem';
 
 function TagList() {
     const dispatch = useDispatch();
-    const tags = useSelector((state) => state.tag.tagList)
+    const tagList = useSelector((state) => state.tag.tagList)
     const inputRefs = useRef({});
 
-    // 태그가 없을 경우 기본 태그 생성
     useEffect(() => {
-        if (tags.length === 0) {
-            dispatch(ensureDefaultTag())
-        }
-    }, [tags])
+        const loadAndEnsureTag = async () => {
+            const resultAction = await dispatch(loadTags());
+            if (loadTags.fulfilled.match(resultAction)) {
+                const loadedTags = resultAction.payload;
+                if (loadedTags.length === 0) {
+                    const defaultTag = {
+                        name: 'New Tag',
+                        color: getRandomColor(),
+                    };
+                    await dispatch(addTag(defaultTag)).unwrap();
+                }
+            }
+        };
+        loadAndEnsureTag();
+    }, [dispatch]);
 
-    const handleAddTag = () => {
+    const handleAddTag = async () => {
         const newTag = {
-            id: nanoid(),
             name: '',
             color: getRandomColor(),
         };
-        dispatch(addTag(newTag))
+        const resultAction = await dispatch(addTag(newTag));
 
-        setTimeout(() => {
-            inputRefs.current[newTag.id]?.focus();
-        }, 100);
+        if (addTag.fulfilled.match(resultAction)) {
+            const createdTag = resultAction.payload;
+            setTimeout(() => {
+                inputRefs.current[createdTag.id]?.focus();
+            }, 100);
+        }
     };
 
     // 태그 이름 변경
@@ -70,7 +81,7 @@ function TagList() {
             </div>
             {/* 태그 리스트 */}
             <div className={styles.tagList}>
-                {tags.map((tag) => (
+                {tagList.map((tag) => (
                     <TagItem
                         key={tag.id}
                         id={tag.id}

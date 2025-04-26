@@ -4,6 +4,7 @@ import com.logindev.todo.config.security.SecurityUtils;
 import com.logindev.todo.domain.User;
 import com.logindev.todo.dto.tag.TagRequest;
 import com.logindev.todo.dto.tag.TagResponse;
+import com.logindev.todo.dto.tag.TagUpdateRequest;
 import com.logindev.todo.service.TagService;
 import com.logindev.todo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,11 @@ public class TagController {
     public void deleteTag(@PathVariable Long tagId) {
         final User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
         tagService.deleteTag(currentUser, tagId);
+    }
+
+    @PatchMapping("/{tagId}")
+    public TagResponse updateTag(@PathVariable Long tagId, @RequestBody TagUpdateRequest request) {
+        User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
+        return tagService.updateTag(currentUser, tagId, request);
     }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import apiClient from '@/api/apiClient';
 import { useSelector } from 'react-redux';
 // CSS
