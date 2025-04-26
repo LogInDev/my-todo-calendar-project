@@ -3,6 +3,7 @@ import dateReducer from './dateSlice'
 import rightPanelReducer from './rightPanelSlice'
 import todoReducer from './todoSlice'
 import tagReducer from './tagSlice'
+import userReducer from './userSlice'
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     rightPanel: rightPanelReducer,
     todo: todoReducer,
     tag: tagReducer,
+    user: userReducer,
   },
 })
 

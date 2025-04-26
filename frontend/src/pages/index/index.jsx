@@ -9,9 +9,10 @@ import dayjs from 'dayjs';
 import LeftSide from '@pages/index/components/leftside/LeftSide';
 import MiddleSide from '@/pages/index/components/middleside/MiddleSide';
 import RightSide from './components/rightside/RightSide';
-import { useNavigate } from 'react-router-dom';
+import useUser from '@/hooks/useUser';
 
 function MainPage() {
+    useUser()
     const dispatch = useDispatch()
     // 현재 월을 관리하는 상태
     const [currentMonth, setCurrentMonth] = useState(dayjs());

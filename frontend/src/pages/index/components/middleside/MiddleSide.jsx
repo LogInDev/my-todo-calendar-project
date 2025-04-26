@@ -14,6 +14,7 @@ import { Select, Button } from 'antd'
 import { UpOutlined, DownOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 // dayjs
 import dayjs from 'dayjs';
+import UserProfile from './UserProfile';
 
 function MiddleSide() {
     // 현재 선택된 날짜를 관리하는 상태
@@ -75,6 +76,8 @@ function MiddleSide() {
                     {selectedDate.format('YYYY')} <strong>{selectedDate.format('M월')}</strong>
                 </span>
                 <div className={styles.controls}>
+                    <UserProfile />
+                    {/* 컨텐츠 타입 선택 */}
                     <Select
                         value={viewType} options={[
                             { value: 'day', label: '일' },
