@@ -4,15 +4,20 @@ import { Dropdown, Input, ColorPicker } from 'antd';
 import styles from './TagItem.module.scss';
 
 function TagItem({ id, name, color, inputRef, onChange, onBlur, onColorChange, onRemove }) {
+    const isDefaultTag = id === null; // '태그 없음'인지 체크
+
     const items = [
         {
             key: 'color',
             label: (
                 <div style={{ padding: 8 }}>
-                    <ColorPicker
-                        defaultValue={color}
-                        onChangeComplete={(c) => onColorChange(c.toHexString())}
-                    />
+                    {/* 태그 없음이면 색생 변경 불가 */}
+                    {!isDefaultTag && (
+                        <ColorPicker
+                            defaultValue={color}
+                            onChangeComplete={(c) => onColorChange(c.toHexString())}
+                        />
+                    )}
                 </div>
             ),
         },
@@ -24,20 +29,27 @@ function TagItem({ id, name, color, inputRef, onChange, onBlur, onColorChange, o
             <Input
                 value={name}
                 placeholder="태그 이름 입력"
-                onChange={(e) => onChange(e.target.value)}
-                onBlur={(e) => onBlur(e.target.value)}
+                onChange={(e) => !isDefaultTag && onChange(e.target.value)}
+                onBlur={(e) => !isDefaultTag && onBlur(e.target.value)}
                 ref={inputRef}
                 variant="borderless"
                 className={styles.tagInput}
+                readOnly={isDefaultTag}
             />
-            <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-                <MoreOutlined className={styles.moreIcon} />
-            </Dropdown>
+            {!isDefaultTag && (
+                <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                    <MoreOutlined className={styles.moreIcon} />
+                </Dropdown>
+            )}
+
             <EyeOutlined className={styles.eyeIcon} />
-            <CloseOutlined
-                className={styles.closeIcon}
-                onClick={() => onRemove(id)}
-            />
+
+            {!isDefaultTag && (
+                <CloseOutlined
+                    className={styles.closeIcon}
+                    onClick={() => onRemove(id)}
+                />
+            )}
         </div>
     );
 }

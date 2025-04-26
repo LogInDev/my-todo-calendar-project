@@ -11,8 +11,14 @@ import TagItem from './TagItem';
 
 function TagList() {
     const dispatch = useDispatch();
-    const tagList = useSelector((state) => state.tag.tagList)
+    const serverTagList = useSelector((state) => state.tag.tagList)
     const inputRefs = useRef({});
+
+    // '태그 없음' 추가
+    const tagList = [
+        { id: null, name: '태그 없음', color: 'transparent' },
+        ...serverTagList
+    ];
 
     useEffect(() => {
         const loadAndEnsureTag = async () => {
@@ -48,10 +54,10 @@ function TagList() {
 
     // 태그가 모두 삭제됐을 때 New Tag 자동 추가
     useEffect(() => {
-        if (tagList.length === 0) {
+        if (serverTagList.length === 0) {
             dispatch(addTag({ name: 'New Tag', color: getRandomColor() }));
         }
-    }, [tagList, dispatch]);
+    }, [serverTagList, dispatch]);
 
     // 태그 이름 변경
     const handleNameChange = (id, value) => {
