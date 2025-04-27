@@ -1,6 +1,7 @@
 package com.logindev.todo.domain;
 
 import com.logindev.todo.dto.todo.TodoRequest;
+import com.logindev.todo.exception.InvalidTodoTimeException;
 import com.logindev.todo.repository.TagRepository;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,6 +49,10 @@ public class Todo extends BaseEntity {
         if (request.tagId() != null) {
             this.tag = tagRepository.findById(request.tagId())
                     .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
+        }
+        // 시작시간이 종료시간보다 늦으면 예외 던짐.
+        if (this.startDatetime != null && this.endDatetime != null && this.startDatetime.isAfter(this.endDatetime)) {
+            throw new InvalidTodoTimeException();
         }
     }
 }

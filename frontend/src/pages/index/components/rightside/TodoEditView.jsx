@@ -31,6 +31,15 @@ function TodoEditView({ todo }) {
 
     const syncTodo = async (custom = {}) => {
         const finalTitle = custom.title ?? title
+        const finalStart = custom.start || startDate;
+        const finalEnd = custom.end || endDate;
+
+        // 시작시간 > 종료시간이면 저장 막기
+        if (finalStart.isAfter(finalEnd)) {
+            alert('시작 시간이 종료 시간보다 늦을 수 없습니다.');
+            return;
+        }
+
         if (!finalTitle.trim()) return
 
         const payload = {
@@ -43,7 +52,6 @@ function TodoEditView({ todo }) {
         }
 
         if (isNew) {
-            console.log('🚀 생성 요청 payload', payload)
             const result = await dispatch(addTodo(payload));
             const newTodo = result.payload; // 서버에서 내려준 todo 객체
             if (newTodo && newTodo.id) {

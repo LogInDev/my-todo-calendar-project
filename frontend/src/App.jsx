@@ -18,12 +18,10 @@ const App = () => {
       withCredentials: true,
     })
       .then((res) => {
-        console.log('로그인 유저:', res.data);
         setIsAuthenticated(true); // 인증 성공
       })
       .catch((err) => {
         if (err.response?.status === 401) {
-          console.log('로그인 안됨');
           setIsAuthenticated(false); // 인증 실패
         } else {
           console.error('API 호출 오류:', err);
@@ -31,10 +29,6 @@ const App = () => {
         }
       });
   }, []);
-
-  // if (isAuthenticated === null) {
-  //   return <div>로딩중...</div>; // 아직 로그인 여부 모를 때
-  // }
 
   return (
     <DndProvider backend={HTML5Backend}>

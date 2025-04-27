@@ -26,8 +26,6 @@ apiClient.interceptors.response.use(
 
       // 401, 302는 refresh 시도
       if ((status === 401 || status === 302) && !originalRequest._retry) {
-        console.log('AccessToken 만료 → 자동 refresh 시도');
-
         originalRequest._retry = true;
 
         try {

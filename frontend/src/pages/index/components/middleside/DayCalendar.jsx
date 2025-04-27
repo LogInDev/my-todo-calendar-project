@@ -43,11 +43,6 @@ function DayCalendar({ date }) {
     const groupedAllDayTodos = groupOverlappingTodos(allDayTodos)
     const groupedTimedTodos = groupOverlappingTodos(timedTodos)
 
-    useEffect(() => {
-        console.log('그룹화된 할일', groupedAllDayTodos);
-        console.log(groupedTimedTodos);
-    }, [groupedAllDayTodos, groupedTimedTodos])
-
     // 드래그로 할 일 생성
     // 마우스 아래로 드래그
     const handleMouseDown = (hour, minute, isAllDay = false) => {
@@ -115,7 +110,6 @@ function DayCalendar({ date }) {
         const duration = dayjs(item.endDatetime).diff(dayjs(item.startDatetime), 'minute')
         const newEnd = newStart.add(duration, 'minute')
 
-        console.log('[Drop: updateTodoAsync]', item.id, newStart.format(), newEnd.format())
         dispatch(updateTodoAsync({
             id: item.id,                        // id를 꼭 따로 넘기고
             todoData: {                         // todoData 객체 안에

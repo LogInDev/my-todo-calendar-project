@@ -21,11 +21,6 @@ export function groupOverlappingTodos(todos) {
 }
 
 export function isOverlap(todo1, todo2) {
-  console.log('todo1.start', todo1.startDatetime);
-  console.log('todo2.start', todo2.startDatetime);
-  console.log('todo1.end', todo1.endDatetime);
-  console.log('todo2.end', todo2.endDatetime);
-  
   const start1 = dayjs(todo1.startDatetime)
   const end1 = dayjs(todo1.endDatetime)
   const start2 = dayjs(todo2.startDatetime)
