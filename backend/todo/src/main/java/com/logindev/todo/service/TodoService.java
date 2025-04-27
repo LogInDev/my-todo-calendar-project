@@ -46,9 +46,10 @@ public class TodoService {
                 .user(user)
                 .tag(tag)
                 .title(request.title())
-                .startDatetime(request.startDatetime())
-                .endDatetime(request.endDatetime())
+                .startDatetime(request.startDatetime().toLocalDateTime())
+                .endDatetime(request.endDatetime().toLocalDateTime())
                 .isAllDay(request.isAllDay() != null ? request.isAllDay() : false)
+                .completed(request.completed() != null ? request.completed() : false)
                 .build();
 
         todoRepository.save(todo);

@@ -1,6 +1,9 @@
 server:
   port: 8080
 
+jwt:
+  secret: W8uF1xPp9vGKH6HqY9tB1FSVoD9UPXGBo5KD+S5sG8kFf3jkAi2UTM8MdVfI8cEnxw==
+
 spring:
   profiles:
     active: local

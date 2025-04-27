@@ -4,23 +4,29 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 @Slf4j
 public class JwtProvider {
 
+    @Value("${jwt.secret}")
+    private String secretKeyString;
+
     private Key key;
     private final long EXPIRATION = 1000 * 60 * 60 * 24; // 1일
 
     @PostConstruct
     public void init() {
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // 현재 랜덤 생성 중 -> 추후 배포시 고정된 secret 사용예정
+        byte[] keyBytes = Base64.getDecoder().decode(secretKeyString); // Base64 디코딩
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Long userId, String email) {

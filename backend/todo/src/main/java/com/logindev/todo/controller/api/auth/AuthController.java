@@ -53,7 +53,7 @@ public class AuthController {
         }
 
         // 2. refresh_token 유효성 검사
-        Optional<UserOAuth> userOAuthOpt = userOAuthRepository.findByRefreshToken(refreshToken);
+        Optional<UserOAuth> userOAuthOpt = userOAuthRepository.findByRefreshTokenWithUser(refreshToken);
 
         if (userOAuthOpt.isEmpty()) {
             log.warn("refresh_token 매칭 실패 → 401");

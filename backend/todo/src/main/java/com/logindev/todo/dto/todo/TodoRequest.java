@@ -1,11 +1,11 @@
 package com.logindev.todo.dto.todo;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public record TodoRequest(
         String title,
-        LocalDateTime startDatetime,
-        LocalDateTime endDatetime,
+        OffsetDateTime startDatetime,
+        OffsetDateTime endDatetime,
         Boolean isAllDay,
         Long tagId,
         Boolean completed

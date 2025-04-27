@@ -39,26 +39,15 @@ public class Todo extends BaseEntity {
 
 
     public void updateFromRequest(TodoRequest request, TagRepository tagRepository) {
-        if (request.title() != null) {
-            this.title = request.title();
-        }
-        if (request.startDatetime() != null) {
-            this.startDatetime = request.startDatetime();
-        }
-        if (request.endDatetime() != null) {
-            this.endDatetime = request.endDatetime();
-        }
-        if (request.isAllDay() != null) {
-            this.isAllDay = request.isAllDay();
-        }
-        if(request.completed() != null) {
-            this.completed = request.completed();
-        }
+        this.title = request.title();
+        this.startDatetime = request.startDatetime() != null ? request.startDatetime().toLocalDateTime() : null;
+        this.endDatetime = request.endDatetime() != null ? request.endDatetime().toLocalDateTime() : null;
+        this.isAllDay = request.isAllDay() != null ? request.isAllDay() : this.isAllDay;
+        this.completed = request.completed() != null ? request.completed() : this.completed;
+
         if (request.tagId() != null) {
             this.tag = tagRepository.findById(request.tagId())
                     .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
-        } else if (request.tagId() == null) {
-            this.tag = null; // 태그 삭제 처리
         }
     }
 }

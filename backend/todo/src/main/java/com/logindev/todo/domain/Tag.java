@@ -25,11 +25,7 @@ public class Tag extends BaseEntity {
     private User user;
 
     public void update(String name, String color) {
-        if(name != null){
-            this.name = name;
-        }
-        if(color != null){
-            this.color = color;
-        }
+        this.name = name != null ? name : this.name;
+        this.color = color != null ? color : this.color;
     }
 }

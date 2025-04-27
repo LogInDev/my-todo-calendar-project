@@ -4,6 +4,7 @@ import com.logindev.todo.config.security.CustomOAuth2UserService;
 import com.logindev.todo.config.security.JwtAuthenticationFilter;
 import com.logindev.todo.config.security.JwtProvider;
 import com.logindev.todo.config.security.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,17 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
+                .exceptionHandling(e ->
+                        e.authenticationEntryPoint((request, response, authException) -> {
+                            if (authException.getMessage().contains("JWT")) {
+                                // JWT 관련 에러만 401
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            } else {
+                                // 그 외는 Spring 기본 흐름
+                                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request");
+                            }
+                        })
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
