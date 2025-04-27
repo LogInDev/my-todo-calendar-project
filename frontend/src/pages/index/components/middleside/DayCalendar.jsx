@@ -3,7 +3,7 @@ import { groupOverlappingTodos } from '@/utils/todoOverlapUtils'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
 import { openCreatePanel } from '@/store/rightPanelSlice'
-import { updateTodo } from '@/store/todoSlice'
+import { updateTodoAsync } from '@/store/todoSlice'
 // Components
 import CurrentTimeLine from './CurrentTimeLine'
 import TodoItem from './TodoItem'
@@ -13,21 +13,27 @@ import styles from './DayCalendar.module.scss'
 // dayjs
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 dayjs.extend(isToday)
 
 function DayCalendar({ date }) {
     const dispatch = useDispatch()
     const isToday = date.isToday()
+    const allTodos = useSelector((state) => state.todo.todoList)
+    // 보여지는 날짜에 해당하는 todo만 필터
+    const dayTodos = allTodos.filter(todo => {
+        const start = dayjs(todo.startDatetime).tz('Asia/Seoul');
+        const end = dayjs(todo.endDatetime).tz('Asia/Seoul');
+        return start.isBefore(date.endOf('day')) && end.isAfter(date.startOf('day'));
+    })
     // 종일, 일반 분리
-    const allTodos = useSelector((state) => state.todo.todos)
-    const dayTodos = allTodos.filter(todo =>
-        dayjs(todo.start).isBefore(date.endOf('day')) &&
-        dayjs(todo.end).isAfter(date.startOf('day'))
-    )
-    // 종일
     const allDayTodos = dayTodos.filter(todo => todo.isAllDay)
     const timedTodos = dayTodos.filter(todo => !todo.isAllDay)
-
+    // 드래그용 상태
     const [dragStart, setDragStart] = useState(null)
     const [dragEnd, setDragEnd] = useState(null)
     const [isDragging, setIsDragging] = useState(false)
@@ -37,10 +43,20 @@ function DayCalendar({ date }) {
     const groupedAllDayTodos = groupOverlappingTodos(allDayTodos)
     const groupedTimedTodos = groupOverlappingTodos(timedTodos)
 
+    useEffect(() => {
+        console.log('그룹화된 할일', groupedAllDayTodos);
+        console.log(groupedTimedTodos);
+
+
+    }
+        , [groupedAllDayTodos, groupedTimedTodos])
+
     // 드래그로 할 일 생성
     // 마우스 아래로 드래그
     const handleMouseDown = (hour, minute, isAllDay = false) => {
-        const start = isAllDay ? dayjs(date).startOf('day') : dayjs(date).hour(hour).minute(minute)
+        const start = isAllDay
+            ? dayjs(date).tz('Asia/Seoul').startOf('day')
+            : dayjs(date).tz('Asia/Seoul').hour(hour).minute(minute);
         setIsDragging(true)
         setIsAllDayDrag(isAllDay)
         setDragStart(start)
@@ -49,7 +65,9 @@ function DayCalendar({ date }) {
 
     const handleMouseEnter = (hour, minute, isAllDay = false) => {
         if (!isDragging || isAllDay !== isAllDayDrag) return
-        const current = isAllDay ? dayjs(date).startOf('day') : dayjs(date).hour(hour).minute(minute)
+        const current = isAllDay
+            ? dayjs(date).tz('Asia/Seoul').startOf('day')
+            : dayjs(date).tz('Asia/Seoul').hour(hour).minute(minute);
         setDragEnd(current)
     }
     // 마우스 위로 드래그
@@ -64,10 +82,13 @@ function DayCalendar({ date }) {
                 : endRaw.clone().add(15, 'minute')
 
             dispatch(openCreatePanel({
+                id: null,
                 title: '',
                 start: start.format(),
                 end: isAllDayDrag ? start.endOf('day').format() : end.format(),
                 isAllDay: isAllDayDrag,
+                tagId: null,
+                completed: false,
             }))
         }
 
@@ -92,16 +113,16 @@ function DayCalendar({ date }) {
 
     const handleDrop = (item, hour, minute, isAllDay = false) => {
         const newStart = isAllDay
-            ? dayjs(date).startOf('day')
-            : dayjs(date).hour(hour).minute(minute)
+            ? dayjs(date).tz('Asia/Seoul').startOf('day')
+            : dayjs(date).tz('Asia/Seoul').hour(hour).minute(minute);
         const duration = dayjs(item.end).diff(dayjs(item.start), 'minute')
         const newEnd = newStart.add(duration, 'minute')
 
-        console.log('[Drop: updateTodo]', item.id, newStart.format(), newEnd.format())
-        dispatch(updateTodo({
+        console.log('[Drop: updateTodoAsync]', item.id, newStart.format(), newEnd.format())
+        dispatch(updateTodoAsync({
             ...item,
-            start: newStart.format(),
-            end: newEnd.format(),
+            startDatetime: newStart.format(),
+            endDatetime: newEnd.format(),
             isAllDay,
         }))
 

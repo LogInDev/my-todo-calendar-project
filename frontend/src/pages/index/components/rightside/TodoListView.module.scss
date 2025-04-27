@@ -1,20 +1,24 @@
 .todoList {
   padding: 16px;
 
-    &__todoItem {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
+  &__todoItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    position: relative; // ⭐️ relative 추가 (hover target 정확하게)
 
-        &:hover .closeIcon {
-            visibility: visible;
-        }
-
-        &__closeIcon {
-        visibility: hidden;
-        color: #999;
-        cursor: pointer;
-        }
+    &:hover .todoList__closeIcon {
+      opacity: 1;
+      visibility: visible;
     }
+  }
+
+  &__closeIcon {
+    visibility: hidden;
+    opacity: 0; // ⭐️ 부드러운 전환 가능
+    transition: opacity 0.2s ease;
+    color: #999;
+    cursor: pointer;
+  }
 }

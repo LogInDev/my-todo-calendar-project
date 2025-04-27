@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { nanoid } from 'nanoid'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
-import { addTodo, updateTodo, deleteTodo } from '@/store/todoSlice'
-import { closePanel } from '@/store/rightPanelSlice'
+import { addTodo, updateTodoAsync, removeTodo } from '@/store/todoSlice'
+import { openEditPanel, closePanel } from '@/store/rightPanelSlice'
 // CSS
 import styles from './TodoEditView.module.scss'
 // antd
@@ -15,54 +14,55 @@ function TodoEditView({ todo }) {
     const dispatch = useDispatch()
     const isEdit = !!todo?.id
     const tags = useSelector((state) => state.tag.tagList)
-    const [isNew, setIsNew] = useState(!todo?.id)
-    const [localId, setLocalId] = useState(() => todo?.id || nanoid())
 
+    const [isNew, setIsNew] = useState(!todo?.id)
     const [title, setTitle] = useState('')
     const [isAllDay, setIsAllDay] = useState(false)
     const [startDate, setStartDate] = useState(dayjs())
     const [endDate, setEndDate] = useState(dayjs().add(1, 'hour'))
     const [selectedTag, setSelectedTag] = useState('')
+    const [completed, setCompleted] = useState(false);
 
-    const syncTodo = (custom = {}) => {
+    const syncTodo = async (custom = {}) => {
         const finalTitle = custom.title ?? title
         if (!finalTitle.trim()) return
 
         const payload = {
             ...todo,
-            id: localId, // 항상 고정된 localId 사용
             title: finalTitle,
-            start: (custom.start || startDate).format(),
-            end: (custom.end || endDate).format(),
+            startDatetime: (custom.start || startDate).format(),
+            endDatetime: (custom.end || endDate).format(),
             isAllDay: custom.isAllDay ?? isAllDay,
             tagId: custom.tagId || selectedTag,
+            completed: custom.completed ?? completed,
         }
 
         if (isNew) {
-            dispatch(addTodo(payload))
-            setIsNew(false) // 한번 생성 후엔 업데이트로 전환
+            console.log('🚀 생성 요청 payload', payload)
+            const result = await dispatch(addTodo(payload));
+            const newTodo = result.payload; // 서버에서 내려준 todo 객체
+            if (newTodo && newTodo.id) {
+                dispatch(openEditPanel(newTodo)); // 패널에서 수정할 todo를 최신으로 업데이트
+            }
+            setIsNew(false);
         } else {
-            dispatch(updateTodo(payload))
+            dispatch(updateTodoAsync({ id: todo.id, todoData: payload }));
         }
     }
-
     // 초기화
     useEffect(() => {
         setTitle(todo?.title || '')
         setIsAllDay(todo?.isAllDay || false)
+        setCompleted(todo?.completed || false)
         setStartDate(dayjs(todo?.start) || dayjs())
         setEndDate(dayjs(todo?.end) || dayjs().add(1, 'hour'))
-        if (!todo?.id) {
-            setIsNew(true)
-            setLocalId(nanoid())
-        } else {
-            setIsNew(false)
-            setLocalId(todo.id)
-        }
+        setIsNew(!todo?.id)
         if (todo?.tagId) {
-            setSelectedTag(todo.tagId)
+            setSelectedTag(todo.tagId);
+        } else if (tags.length > 0) {
+            setSelectedTag(tags[0].id);
         } else {
-            setSelectedTag(tags[0].id) // 항상 첫 번째 태그를 초기 선택값으로 설정
+            setSelectedTag(null); // 태그 없으면 null
         }
     }, [todo, tags])
 
@@ -103,8 +103,6 @@ function TodoEditView({ todo }) {
     }
 
     const handleAllDayChange = (v) => {
-        console.log(v);
-
         setIsAllDay(v)
         const start = v ? startDate.startOf('day') : startDate
         const end = v ? endDate.startOf('day') : endDate
@@ -121,7 +119,7 @@ function TodoEditView({ todo }) {
     // 삭제 버튼 클릭 시
     const handleDelete = () => {
         if (!todo?.id) return
-        dispatch(deleteTodo(todo.id))
+        dispatch(removeTodo(todo.id))
         dispatch(closePanel())
     }
 
@@ -152,7 +150,7 @@ function TodoEditView({ todo }) {
             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }} className={isAllDay ? styles.disabledTimePicker : ''}>
                 <TimePicker
                     value={startDate}
-                    onChange={handleStartChange} handleEndChange
+                    onChange={handleStartChange}
                     changeOnScroll
                     needConfirm={false}
                     format="HH:mm"
