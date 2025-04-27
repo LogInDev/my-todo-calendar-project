@@ -38,7 +38,7 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     if (visibleStart.isAfter(visibleEnd)) return null
 
     const top = isAllDay ? 0 : visibleStart.diff(currentDayStart, 'minute')
-    const duration = isAllDay ? 20 : Math.max(visibleEnd.diff(visibleStart, 'minute'), 15)
+    const duration = isAllDay ? 17 : Math.max(visibleEnd.diff(visibleStart, 'minute'), 15)
     const isCompact = isAllDay || duration <= 15
 
     // 일정이 같은 시간 라인에 겹치는 경우
@@ -60,7 +60,7 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
             ref={dragRef} // 드래그 연결
             className={`${styles.todo} ${isDragging ? styles.dragging : ''} ${isCompact ? styles.compact : ''}`}
             style={{
-                top: isAllDay ? '0px' : `${top + 23}px`,
+                top: isAllDay ? '0px' : `${top + 20}px`,
                 height: `${duration}px`,
                 opacity: isDragging ? 0.6 : 1,
                 cursor: 'move',

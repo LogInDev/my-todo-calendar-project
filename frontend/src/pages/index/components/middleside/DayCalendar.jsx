@@ -120,8 +120,8 @@ function DayCalendar({ date }) {
             id: item.id,                        // id를 꼭 따로 넘기고
             todoData: {                         // todoData 객체 안에
                 title: item.title,
-                startDatetime: newStart.format(), // 여기는 "startDatetime"
-                endDatetime: newEnd.format(),     // 여기는 "endDatetime"
+                startDatetime: newStart.format(),
+                endDatetime: newEnd.format(),
                 isAllDay,
                 tagId: item.tagId,
                 completed: item.completed,

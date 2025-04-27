@@ -6,19 +6,33 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
-    position: relative; // ⭐️ relative 추가 (hover target 정확하게)
+    position: relative; 
 
-    &:hover .todoList__closeIcon {
-      opacity: 1;
+    &__todoDate{
+      font-size: 12px;
+      color: main.$color-gray-500;
+      margin-left: 5px;
+    }
+
+    &:hover .todoList__todoItem__closeIcon {
       visibility: visible;
+      opacity: 1;
+    }
+
+    &__closeIcon {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: main.$color-gray-500;
     }
   }
+}
 
-  &__closeIcon {
-    visibility: hidden;
-    opacity: 0; // ⭐️ 부드러운 전환 가능
-    transition: opacity 0.2s ease;
-    color: #999;
-    cursor: pointer;
-  }
+.completed {
+  text-decoration: line-through;
+  color: main.$color-gray-300;
 }

@@ -39,7 +39,7 @@ public class Todo extends BaseEntity {
 
 
     public void updateFromRequest(TodoRequest request, TagRepository tagRepository) {
-        this.title = request.title();
+        this.title = request.title() != null ? request.title() : this.title;
         this.startDatetime = request.startDatetime() != null ? request.startDatetime().toLocalDateTime() : null;
         this.endDatetime = request.endDatetime() != null ? request.endDatetime().toLocalDateTime() : null;
         this.isAllDay = request.isAllDay() != null ? request.isAllDay() : this.isAllDay;

@@ -8,6 +8,8 @@ import { loadTodos, updateTodoAsync, removeTodo } from '@/store/todoSlice';
 import { Checkbox } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+dayjs.extend(isBetween);
 
 function TodoListView() {
     const dispatch = useDispatch();
@@ -17,17 +19,25 @@ function TodoListView() {
         dispatch(loadTodos());
     }, [dispatch]);
 
-    const today = dayjs().format('YYYY-MM-DD');
-    const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD');
-
     // 오늘/내일 기준으로 필터링
-    const todayTodos = todoList.filter(todo => dayjs(todo.startDatetime).format('YYYY-MM-DD') === today);
-    const tomorrowTodos = todoList.filter(todo => dayjs(todo.startDatetime).format('YYYY-MM-DD') === tomorrow);
+    const todayTodos = todoList.filter(todo => {
+        const start = dayjs(todo.startDatetime).startOf('day');
+        const end = dayjs(todo.endDatetime).endOf('day');
+        const now = dayjs().startOf('day');
+        return now.isBetween(start, end, null, '[]');
+    });
 
     const handleToggleCompleted = (todo) => {
         dispatch(updateTodoAsync({
             id: todo.id,
-            todoData: { completed: !todo.completed }
+            todoData: {
+                title: todo.title,
+                startDatetime: dayjs(todo.startDatetime).format(),
+                endDatetime: dayjs(todo.endDatetime).format(),
+                isAllDay: todo.isAllDay,
+                tagId: todo.tagId,
+                completed: !todo.completed
+            }
         }))
     };
 
@@ -39,12 +49,18 @@ function TodoListView() {
 
     const renderTodoList = (todos) => (
         todos.map(todo => (
-            <div key={todo.id} className={styles.todoList__todoItem}>
+            <div key={todo.id}
+                className={styles.todoList__todoItem}
+            >
                 <Checkbox
                     checked={todo.completed}
                     onChange={() => handleToggleCompleted(todo)}
                 >
-                    {`${todo.title} (${dayjs(todo.startDatetime).format('HH:mm')})`}
+                    <span className={`${todo.completed ? styles.completed : ''}`}>{todo.title}</span>
+                    <div className={`${styles.todoList__todoItem__todoDate} ${todo.completed ? styles.completed : ''}`}>
+                        {dayjs(todo.startDatetime).format('MM-DD HH:mm')}
+                        → {dayjs(todo.endDatetime).format('MM-DD HH:mm')}
+                    </div>
                 </Checkbox>
                 <CloseOutlined
                     className={styles.todoList__todoItem__closeIcon}
@@ -59,10 +75,6 @@ function TodoListView() {
             {/* 오늘 할일 */}
             <h3>Today</h3>
             {todayTodos.length > 0 ? renderTodoList(todayTodos) : <p>오늘 할일이 없습니다.</p>}
-
-            {/* 내일 할일 */}
-            <h3>Tomorrow</h3>
-            {tomorrowTodos.length > 0 ? renderTodoList(tomorrowTodos) : <p>내일 할일이 없습니다.</p>}
         </div>
     );
 }
