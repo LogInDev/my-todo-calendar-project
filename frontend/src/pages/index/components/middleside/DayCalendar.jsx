@@ -23,13 +23,13 @@ dayjs.extend(isToday)
 function DayCalendar({ date }) {
     const dispatch = useDispatch()
     const isToday = date.isToday()
-    const allTodos = useSelector((state) => state.todo.todoList)
+    const allTodos = useSelector((state) => state.todo.todoList) || [];
     // 보여지는 날짜에 해당하는 todo만 필터
     const dayTodos = allTodos.filter(todo => {
         const start = dayjs(todo.startDatetime).tz('Asia/Seoul');
         const end = dayjs(todo.endDatetime).tz('Asia/Seoul');
         return start.isBefore(date.endOf('day')) && end.isAfter(date.startOf('day'));
-    })
+    }) || [];
     // 종일, 일반 분리
     const allDayTodos = dayTodos.filter(todo => todo.isAllDay)
     const timedTodos = dayTodos.filter(todo => !todo.isAllDay)
@@ -111,8 +111,8 @@ function DayCalendar({ date }) {
         const newEnd = newStart.add(duration, 'minute')
 
         dispatch(updateTodoAsync({
-            id: item.id,                        // id를 꼭 따로 넘기고
-            todoData: {                         // todoData 객체 안에
+            id: item.id,
+            todoData: {
                 title: item.title,
                 startDatetime: newStart.format(),
                 endDatetime: newEnd.format(),
@@ -146,7 +146,7 @@ function DayCalendar({ date }) {
                         isInRange={isDragging && isAllDayDrag}
                     />
                     {/* 종일 할 일 렌더링 */}
-                    {groupedAllDayTodos.map((group, groupIndex) =>
+                    {groupedAllDayTodos.map((group) =>
                         group.map((todo, indexInGroup) => (
                             <TodoItem
                                 key={todo.id}

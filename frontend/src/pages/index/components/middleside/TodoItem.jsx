@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 // redux
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { openEditPanel } from '@/store/rightPanelSlice'
 // CSS
 import styles from './TodoItem.module.scss'
@@ -12,10 +12,21 @@ dayjs.extend(minMax)
 
 function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     const dispatch = useDispatch()
-    const { title, startDatetime, endDatetime, tagColor, isAllDay } = data
+    const { title, startDatetime, endDatetime, tagId, isAllDay } = data
+
+    // tagColor를 Redux 상태에서 가져오기
+    const tagColor = useSelector((state) => {
+        const tag = state.tag.tagList.find(tag => tag.id === tagId)
+        return tag ? tag.color : 'transparent'
+    })
 
     const startTime = dayjs(startDatetime)
     const endTime = dayjs(endDatetime)
+
+    useEffect(() => {
+        console.log(title, ' >>', tagColor);
+
+    }, [tagColor])
 
     const isMultiDay = !startTime.isSame(endTime, 'day') // 여러 날짜 일정
 
@@ -76,7 +87,7 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
             {!isAllDay && (
                 <div className={styles.time}>
                     {isMultiDay
-                        ? <>{startTime.format('MM-DD HH:mm')} < br /> → {endTime.format('MM-DD HH:mm')}</>
+                        ? <>{startTime.format('MM월 DD일 HH:mm')} < br /> → {endTime.format('MM월 DD일 HH:mm')}</>
                         : `${startTime.format('HH:mm')} → ${endTime.format('HH:mm')}`}
                 </div>
             )}

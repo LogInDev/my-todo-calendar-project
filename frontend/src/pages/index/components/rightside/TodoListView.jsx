@@ -13,7 +13,7 @@ dayjs.extend(isBetween);
 
 function TodoListView() {
     const dispatch = useDispatch();
-    const todoList = useSelector((state) => state.todo.todoList);
+    const todoList = useSelector((state) => state.todo.todoList) || [];
 
     useEffect(() => {
         dispatch(loadTodos());
@@ -58,8 +58,10 @@ function TodoListView() {
                 >
                     <span className={`${todo.completed ? styles.completed : ''}`}>{todo.title}</span>
                     <div className={`${styles.todoList__todoItem__todoDate} ${todo.completed ? styles.completed : ''}`}>
-                        {dayjs(todo.startDatetime).format('MM-DD HH:mm')}
-                        → {dayjs(todo.endDatetime).format('MM-DD HH:mm')}
+                        {todo.isAllDay
+                            ? `${dayjs(todo.startDatetime).format('MM월 DD일')} → ${dayjs(todo.endDatetime).format('MM월 DD일')}`
+                            : `${dayjs(todo.startDatetime).format('MM월 DD일 HH:mm')} → ${dayjs(todo.endDatetime).format('MM월 DD일 HH:mm')}`
+                        }
                     </div>
                 </Checkbox>
                 <CloseOutlined

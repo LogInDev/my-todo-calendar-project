@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: todo-db
+    environment:
+      MYSQL_ROOT_PASSWORD: mpass1234!
+      MYSQL_DATABASE: todo_db
+    ports:
+      - "3306:3306"
+    networks:
+      - todo-network
+    volumes:
+      - todo-db-data:/var/lib/mysql
+      - ./sql/create.sql:/docker-entrypoint-initdb.d/create.sql
+    restart: always
+
+  # Backend Service (Spring Boot)
+  backend:
+    build:
+      context: ./backend/todo
+    container_name: todo-backend
+    environment:
+      DB_URL: jdbc:mysql://db:3306/todo_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      DB_USERNAME: root
+      DB_PASSWORD: mpass1234!
+      KAKAO_CLIENT_ID: 091acef88105f929b7ee98967def5acc
+    ports:
+      - "8080:8080"
+    networks:
+      - todo-network
+    depends_on:
+      - db
+    restart: always
+
+  # Frontend Service (React.js)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: todo-frontend
+    environment:
+      REACT_APP_API_URL: http://backend:8080 
+      REACT_APP_KAKAO_REST_API_KEY: 091acef88105f929b7ee98967def5acc
+    ports:
+      - "3000:3000"
+    networks:
+      - todo-network
+    depends_on:
+      - backend
+    restart: always
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  todo-db-data:
+    driver: local

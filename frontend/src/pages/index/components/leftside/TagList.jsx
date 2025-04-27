@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import TagItem from './TagItem';
 // redux
 import { useDispatch, useSelector } from 'react-redux';
 import { addTag, loadTags, updateTagAsync, removeTag } from '@/store/tagSlice';
@@ -7,7 +8,6 @@ import styles from './TagList.module.scss'
 import { getRandomColor } from '@utils/colorUtils'
 // antd
 import { TagOutlined, PlusOutlined } from '@ant-design/icons';
-import TagItem from './TagItem';
 
 function TagList() {
     const dispatch = useDispatch();
