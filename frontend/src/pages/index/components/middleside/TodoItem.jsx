@@ -12,7 +12,7 @@ dayjs.extend(minMax)
 
 function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     const dispatch = useDispatch()
-    const { title, startDatetime, endDatetime, color, isAllDay } = data
+    const { title, startDatetime, endDatetime, tagColor, isAllDay } = data
 
     const startTime = dayjs(startDatetime)
     const endTime = dayjs(endDatetime)
@@ -33,14 +33,6 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
             isDragging: monitor.isDragging(),
         }),
     })
-
-    useEffect(() => {
-        console.log('--------data: ', data);
-        console.log('--------date: ', date);
-        console.log('groupSize: ', groupSize);
-        console.log('groupIndex : ', groupIndex);
-
-    }, [groupSize, groupIndex])
 
     // 만약 일정이 이 날짜에 포함되지 않으면 렌더링 X
     if (visibleStart.isAfter(visibleEnd)) return null
@@ -70,13 +62,13 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
             style={{
                 top: isAllDay ? '0px' : `${top + 23}px`,
                 height: `${duration}px`,
-                backgroundColor: color,
                 opacity: isDragging ? 0.6 : 1,
                 cursor: 'move',
                 position: 'absolute',
                 left,
                 width,
                 zIndex: isDragging || isAllDay ? 1000 : 2,
+                borderLeft: `5px solid ${tagColor}`,
             }}
             onClick={handleClick}
         >

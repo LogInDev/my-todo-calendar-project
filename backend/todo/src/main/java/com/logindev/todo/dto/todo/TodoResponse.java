@@ -14,8 +14,10 @@ public class TodoResponse {
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
     private Boolean isAllDay;
-    private Long tagId; // tag가 없으면 null
     private Boolean completed;
+    private Long tagId; // tag가 없으면 null
+    private String tagName;
+    private String tagColor;
 
     public static TodoResponse from(Todo todo) {
         return TodoResponse.builder()
@@ -24,8 +26,11 @@ public class TodoResponse {
                 .startDatetime(todo.getStartDatetime())
                 .endDatetime(todo.getEndDatetime())
                 .isAllDay(todo.getIsAllDay())
-                .tagId(todo.getTag() != null ? todo.getTag().getId() : null)
                 .completed(todo.getCompleted())
+                .tagId(todo.getTag() != null ? todo.getTag().getId() : null)
+                .tagName(todo.getTag() != null ? todo.getTag().getName() : "태그 없음")
+                .tagColor(todo.getTag() != null ? todo.getTag().getColor() : "transparent")
                 .build();
     }
+
 }

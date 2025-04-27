@@ -40,7 +40,6 @@ const todoSlice = createSlice({
                 state.todoList.push(action.payload);
             })
             .addCase(updateTodoAsync.fulfilled, (state, action) => {
-                console.log('🔥 action.payload', action.payload);
                 const updatedTodo = action.payload;
                 const index = state.todoList.findIndex(todo => todo.id === updatedTodo.id);
                 if (index !== -1) {

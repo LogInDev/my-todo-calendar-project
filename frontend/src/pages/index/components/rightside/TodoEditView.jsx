@@ -199,12 +199,43 @@ function TodoEditView({ todo }) {
             {/* 태그 선택 */}
             <div style={{ marginBottom: 12 }}>
                 <Select
-                    value={selectedTag}
+                    value={selectedTag ?? null} // null이면 "태그 없음" 선택
                     onChange={handleTagChange}
-                    options={tags.map((tag) => ({
-                        label: tag.name,
-                        value: tag.id,
-                    }))}
+                    options={[
+                        {
+                            label: (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div
+                                        style={{
+                                            width: 12,
+                                            height: 12,
+                                            backgroundColor: 'transparent',
+                                            border: '1px solid #ddd',
+                                        }}
+                                    />
+                                    <span>태그 없음</span>
+                                </div>
+                            ),
+                            value: null,
+                        },
+                        ...tags.map((tag) => ({
+                            label: (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div
+                                        style={{
+                                            width: 12,
+                                            height: 12,
+                                            backgroundColor: tag.color,
+                                            borderRadius: 2,
+                                            border: '1px solid #ddd',
+                                        }}
+                                    />
+                                    <span>{tag.name}</span>
+                                </div>
+                            ),
+                            value: tag.id,
+                        })),
+                    ]}
                     style={{ width: '100%' }}
                     placeholder="태그 선택"
                 />
