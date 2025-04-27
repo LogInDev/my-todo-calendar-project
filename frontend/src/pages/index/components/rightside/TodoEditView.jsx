@@ -64,8 +64,8 @@ function TodoEditView({ todo }) {
         setIsNew(!todo?.id)
         if (todo?.tagId) {
             setSelectedTag(todo.tagId);
-        } else if (tags.length > 0) {
-            setSelectedTag(tags[0].id);
+            // } else if (tags.length > 0) {
+            //     setSelectedTag(tags[0].id);
         } else {
             setSelectedTag(null); // 태그 없으면 null
         }

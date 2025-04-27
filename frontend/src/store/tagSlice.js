@@ -1,33 +1,47 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchTags, createTag, deleteTag, updateTag } from '@/api/tagApi';
 
-export const loadTags = createAsyncThunk('tag/loadTags', async () => {
+// 1. 태그 전체 불러오기
+export const loadTags = createAsyncThunk('tag/loadTags', async (_, { dispatch }) => {
   const response = await fetchTags();
-  return response.data;
+  const tagList = response.data.data;
+
+  if (tagList.length === 0) {
+    const newTag = {
+      name: 'New Tag',
+      color: '#4096ff',
+    };
+    const createResponse = await createTag(newTag);
+    return [createResponse.data.data];  
+  }
+
+  return tagList;
 });
 
+// 2. 새 태그 추가
 export const addTag = createAsyncThunk('tag/addTag', async (tagData) => {
   const response = await createTag(tagData);
-  return response.data;
+  return response.data.data;
 });
 
+// 3. 태그 삭제
 export const removeTag = createAsyncThunk('tag/removeTag', async (tagId) => {
   await deleteTag(tagId);
   return tagId;
 });
 
+// 4. 태그 수정
 export const updateTagAsync = createAsyncThunk(
   'tag/updateTag',
   async ({ id, name, color }) => {
     const response = await updateTag(id, { name, color });
-    return response.data;
+    return response.data.data;
   }
 );
 
-
 const tagSlice = createSlice({
   name: 'tag',
-  initialState:{
+  initialState: {
     tagList: [],
   },
   reducers: {},

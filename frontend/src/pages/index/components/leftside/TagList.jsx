@@ -43,7 +43,6 @@ function TagList() {
             color: getRandomColor(),
         };
         const resultAction = await dispatch(addTag(newTag));
-
         if (addTag.fulfilled.match(resultAction)) {
             const createdTag = resultAction.payload;
             setTimeout(() => {
@@ -51,13 +50,6 @@ function TagList() {
             }, 100);
         }
     };
-
-    // 태그가 모두 삭제됐을 때 New Tag 자동 추가
-    useEffect(() => {
-        if (serverTagList.length === 0) {
-            dispatch(addTag({ name: 'New Tag', color: getRandomColor() }));
-        }
-    }, [serverTagList, dispatch]);
 
     // 태그 이름 변경
     const handleNameChange = (id, value) => {
@@ -71,14 +63,18 @@ function TagList() {
 
     // 태그 이름이 비어있을 때 삭제
     const handleBlur = (id, value) => {
-        if (!value.trim()) {
+        if (!value.trim() && id !== null) {
             dispatch(removeTag(id))
         }
     };
 
     // 태그 삭제
     const handleRemove = (id) => {
-        dispatch(removeTag(id))
+        if (id !== null) {
+            dispatch(removeTag(id))
+                .unwrap()
+                .then(() => dispatch(loadTags()));
+        }
     };
 
     return (

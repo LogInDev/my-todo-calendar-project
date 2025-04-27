@@ -5,6 +5,7 @@ import com.logindev.todo.domain.User;
 import com.logindev.todo.dto.tag.TagRequest;
 import com.logindev.todo.dto.tag.TagResponse;
 import com.logindev.todo.dto.tag.TagUpdateRequest;
+import com.logindev.todo.response.ApiResponse;
 import com.logindev.todo.service.TagService;
 import com.logindev.todo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,26 +22,30 @@ public class TagController {
     private final UserService userService;
 
     @PostMapping
-    public TagResponse createTag(@RequestBody TagRequest request) {
+    public ApiResponse<TagResponse> createTag(@RequestBody TagRequest request) {
         final User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
-        return tagService.createTag(currentUser, request);
+        TagResponse tag = tagService.createTag(currentUser, request);
+        return ApiResponse.success(tag);
     }
 
     @GetMapping
-    public List<TagResponse> getTags() {
+    public ApiResponse<List<TagResponse>> getTags() {
         final User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
-        return tagService.getTagsByUser(currentUser);
+        List<TagResponse> tags = tagService.getTagsByUser(currentUser);
+        return ApiResponse.success(tags);
     }
 
     @DeleteMapping("/{tagId}")
-    public void deleteTag(@PathVariable Long tagId) {
+    public ApiResponse<Void> deleteTag(@PathVariable Long tagId) {
         final User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
         tagService.deleteTag(currentUser, tagId);
+        return ApiResponse.success(null); // 삭제는 데이터 없이 성공
     }
 
     @PatchMapping("/{tagId}")
-    public TagResponse updateTag(@PathVariable Long tagId, @RequestBody TagUpdateRequest request) {
+    public ApiResponse<TagResponse> updateTag(@PathVariable Long tagId, @RequestBody TagUpdateRequest request) {
         User currentUser = userService.findById(SecurityUtils.getCurrentUserId());
-        return tagService.updateTag(currentUser, tagId, request);
+        TagResponse updatedTag = tagService.updateTag(currentUser, tagId, request);
+        return ApiResponse.success(updatedTag);
     }
 }
