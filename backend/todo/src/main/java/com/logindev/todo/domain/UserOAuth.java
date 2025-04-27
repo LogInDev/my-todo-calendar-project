@@ -39,6 +39,9 @@ public class UserOAuth extends BaseEntity {
         this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = refreshTokenExpiresAt;
     }
-
+    public void clearRefreshToken() {
+        this.refreshToken = null;
+        this.refreshTokenExpiresAt = null;
+    }
 }
 

@@ -86,34 +86,44 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 1. 쿠키에서 refresh_token 꺼내기
+        String refreshToken = extractTokenFromCookie(request, "REFRESH_TOKEN");
 
-        // AccessToken 삭제
-        Cookie accessTokenCookie = new Cookie("ACCESS_TOKEN", null);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(isSecure()); // 프로덕션이면 true
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0); // 즉시 만료
+        if (refreshToken != null) {
+            userOAuthRepository.findByRefreshTokenWithUser(refreshToken).ifPresent(userOAuth -> {
+                userOAuth.clearRefreshToken();
+                userOAuthRepository.save(userOAuth);
+            });
+        }
 
-        // RefreshToken 삭제
-        Cookie refreshTokenCookie = new Cookie("REFRESH_TOKEN", null);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(isSecure());
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);
+        // 2. AccessToken 삭제
+        ResponseCookie accessTokenCookie = ResponseCookie.from("ACCESS_TOKEN", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(isSecure())
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
 
-        // 쿠키를 응답에 추가
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
+        // 3. RefreshToken 삭제
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("REFRESH_TOKEN", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(isSecure())
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
 
-        return ResponseEntity.ok()
-                .body(new ApiResponse<>(200, "success", null));
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
 
     private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
         if (request.getCookies() == null) return null;
-
         for (Cookie cookie : request.getCookies()) {
             if (cookieName.equals(cookie.getName())) {
                 return cookie.getValue();

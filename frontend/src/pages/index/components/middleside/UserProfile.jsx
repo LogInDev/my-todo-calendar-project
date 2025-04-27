@@ -1,6 +1,7 @@
 import React from 'react'
 import apiClient from '@/api/apiClient';
 import { useSelector } from 'react-redux';
+import { KAKAO_REST_API_KEY } from '@/config';
 // CSS
 import styles from './UserProfile.module.scss'
 // ant Design
@@ -12,7 +13,10 @@ function UserProfile() {
     const handleLogout = async () => {
         try {
             await apiClient.post('/api/auth/logout');
-            window.location.href = '/login';
+            const LOGOUT_REDIRECT_URI = `${window.location.origin}/login`;
+            const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${KAKAO_REST_API_KEY}&logout_redirect_uri=${encodeURIComponent(LOGOUT_REDIRECT_URI)}`;
+
+            window.location.href = kakaoLogoutUrl;
         } catch (e) {
             console.error('Logout 실패:', e);
         }
