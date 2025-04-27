@@ -46,7 +46,7 @@ function TodoEditView({ todo }) {
             title: finalTitle,
             startDatetime: (custom.start || startDate).format(),
             endDatetime: (custom.end || endDate).format(),
-            isAllDay: custom.isAllDay ?? isAllDay,
+            isAllDay: custom.isAllDay !== undefined ? custom.isAllDay : isAllDay,
             tagId: custom.tagId || selectedTag,
             completed: custom.completed ?? completed,
         }

@@ -15,7 +15,9 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import isBetween from 'dayjs/plugin/isBetween'
 
+dayjs.extend(isBetween)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isToday)
@@ -24,14 +26,21 @@ function DayCalendar({ date }) {
     const dispatch = useDispatch()
     const isToday = date.isToday()
     const allTodos = useSelector((state) => state.todo.todoList) || [];
-    // 보여지는 날짜에 해당하는 todo만 필터
     const dayTodos = allTodos.filter(todo => {
-        const start = dayjs(todo.startDatetime).tz('Asia/Seoul');
-        const end = dayjs(todo.endDatetime).tz('Asia/Seoul');
-        return start.isBefore(date.endOf('day')) && end.isAfter(date.startOf('day'));
+        const start = dayjs(todo.startDatetime).tz('Asia/Seoul').startOf('day');
+        const end = dayjs(todo.endDatetime).tz('Asia/Seoul').endOf('day');
+
+        // 종일 일정일 경우, startDatetime과 endDatetime을 하루 전체로 설정
+        if (todo.isAllDay) {
+            return dayjs(date).isBetween(start, end, null, '[)');  // 종일 일정 확인
+        }
+
+        // 시간대가 있는 경우 (일반적인 할 일)
+        return dayjs(date).isBetween(start, end, null, '[)');  // 시작과 끝 시간 비교
     }) || [];
+
     // 종일, 일반 분리
-    const allDayTodos = dayTodos.filter(todo => todo.isAllDay)
+    const allDayTodos = dayTodos.filter(todo => todo.isAllDay) || [];
     const timedTodos = dayTodos.filter(todo => !todo.isAllDay)
     // 드래그용 상태
     const [dragStart, setDragStart] = useState(null)

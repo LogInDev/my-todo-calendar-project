@@ -23,11 +23,6 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     const startTime = dayjs(startDatetime)
     const endTime = dayjs(endDatetime)
 
-    useEffect(() => {
-        console.log(title, ' >>', tagColor);
-
-    }, [tagColor])
-
     const isMultiDay = !startTime.isSame(endTime, 'day') // 여러 날짜 일정
 
     // 현재 보여주는 날짜 기준으로 일정 잘라내기
