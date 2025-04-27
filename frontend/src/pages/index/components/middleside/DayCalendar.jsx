@@ -81,8 +81,8 @@ function DayCalendar({ date }) {
             dispatch(openCreatePanel({
                 id: null,
                 title: '',
-                start: start.format(),
-                end: isAllDayDrag ? start.endOf('day').format() : end.format(),
+                startDatetime: start.format(),
+                endDatetime: isAllDayDrag ? start.endOf('day').format() : end.format(),
                 isAllDay: isAllDayDrag,
                 tagId: null,
                 completed: false,

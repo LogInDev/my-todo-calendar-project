@@ -9,6 +9,12 @@ import styles from './TodoEditView.module.scss'
 import { Input, TimePicker, DatePicker, Switch, Select, Button } from 'antd'
 import { DeleteFilled } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 function TodoEditView({ todo }) {
     const dispatch = useDispatch()
@@ -53,8 +59,8 @@ function TodoEditView({ todo }) {
         setTitle(todo?.title || '')
         setIsAllDay(todo?.isAllDay || false)
         setCompleted(todo?.completed || false)
-        setStartDate(dayjs(todo?.start) || dayjs())
-        setEndDate(dayjs(todo?.end) || dayjs().add(1, 'hour'))
+        setStartDate(todo?.startDatetime ? dayjs(todo.startDatetime).tz('Asia/Seoul') : dayjs())
+        setEndDate(todo?.endDatetime ? dayjs(todo.endDatetime).tz('Asia/Seoul') : dayjs().add(1, 'hour'))
         setIsNew(!todo?.id)
         if (todo?.tagId) {
             setSelectedTag(todo.tagId);

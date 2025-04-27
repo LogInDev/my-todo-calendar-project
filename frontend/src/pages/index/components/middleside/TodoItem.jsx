@@ -35,8 +35,12 @@ function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     })
 
     useEffect(() => {
-        console.log('[Drag start]', data.id, data.title)
-    }, [data])
+        console.log('--------data: ', data);
+        console.log('--------date: ', date);
+        console.log('groupSize: ', groupSize);
+        console.log('groupIndex : ', groupIndex);
+
+    }, [groupSize, groupIndex])
 
     // 만약 일정이 이 날짜에 포함되지 않으면 렌더링 X
     if (visibleStart.isAfter(visibleEnd)) return null
