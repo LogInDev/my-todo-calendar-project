@@ -4,19 +4,19 @@ import { fetchTodos, createTodo, updateTodo, deleteTodo } from '@/api/todoApi';
 // 1. 서버에서 할일 불러오기
 export const loadTodos = createAsyncThunk('todo/loadTodos', async () => {
     const response = await fetchTodos();
-    return response.data;
+    return response.data.data;
 });
 
 // 2. 새로운 할일 추가
 export const addTodo = createAsyncThunk('todo/addTodo', async (todoData) => {
     const response = await createTodo(todoData);
-    return response.data;
+    return response.data.data;
 });
 
 // 3. 기존 할일 수정
 export const updateTodoAsync = createAsyncThunk('todo/updateTodo', async ({ id, todoData }) => {
     const response = await updateTodo(id, todoData);
-    return response.data;
+    return response.data.data; 
 });
 
 // 4. 기존 할일 삭제
@@ -40,6 +40,7 @@ const todoSlice = createSlice({
                 state.todoList.push(action.payload);
             })
             .addCase(updateTodoAsync.fulfilled, (state, action) => {
+                console.log('🔥 action.payload', action.payload);
                 const updatedTodo = action.payload;
                 const index = state.todoList.findIndex(todo => todo.id === updatedTodo.id);
                 if (index !== -1) {

@@ -12,10 +12,10 @@ dayjs.extend(minMax)
 
 function TodoItem({ data, date, groupSize = 1, groupIndex = 0 }) {
     const dispatch = useDispatch()
-    const { title, start, end, color, isAllDay } = data
+    const { title, startDatetime, endDatetime, color, isAllDay } = data
 
-    const startTime = dayjs(start)
-    const endTime = dayjs(end)
+    const startTime = dayjs(startDatetime)
+    const endTime = dayjs(endDatetime)
 
     const isMultiDay = !startTime.isSame(endTime, 'day') // 여러 날짜 일정
 

@@ -28,7 +28,6 @@ function TodoEditView({ todo }) {
         if (!finalTitle.trim()) return
 
         const payload = {
-            ...todo,
             title: finalTitle,
             startDatetime: (custom.start || startDate).format(),
             endDatetime: (custom.end || endDate).format(),

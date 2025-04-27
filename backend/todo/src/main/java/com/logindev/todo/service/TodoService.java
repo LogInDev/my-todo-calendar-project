@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -66,5 +69,11 @@ public class TodoService {
         }
 
         todoRepository.delete(todo);
+    }
+
+    public List<TodoResponse> getTodos(User user) {
+        return todoRepository.findByUser(user).stream()
+                .map(TodoResponse::from)
+                .toList();
     }
 }

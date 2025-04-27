@@ -46,10 +46,7 @@ function DayCalendar({ date }) {
     useEffect(() => {
         console.log('그룹화된 할일', groupedAllDayTodos);
         console.log(groupedTimedTodos);
-
-
-    }
-        , [groupedAllDayTodos, groupedTimedTodos])
+    }, [groupedAllDayTodos, groupedTimedTodos])
 
     // 드래그로 할 일 생성
     // 마우스 아래로 드래그
@@ -115,17 +112,21 @@ function DayCalendar({ date }) {
         const newStart = isAllDay
             ? dayjs(date).tz('Asia/Seoul').startOf('day')
             : dayjs(date).tz('Asia/Seoul').hour(hour).minute(minute);
-        const duration = dayjs(item.end).diff(dayjs(item.start), 'minute')
+        const duration = dayjs(item.endDatetime).diff(dayjs(item.startDatetime), 'minute')
         const newEnd = newStart.add(duration, 'minute')
 
         console.log('[Drop: updateTodoAsync]', item.id, newStart.format(), newEnd.format())
         dispatch(updateTodoAsync({
-            ...item,
-            startDatetime: newStart.format(),
-            endDatetime: newEnd.format(),
-            isAllDay,
-        }))
-
+            id: item.id,                        // id를 꼭 따로 넘기고
+            todoData: {                         // todoData 객체 안에
+                title: item.title,
+                startDatetime: newStart.format(), // 여기는 "startDatetime"
+                endDatetime: newEnd.format(),     // 여기는 "endDatetime"
+                isAllDay,
+                tagId: item.tagId,
+                completed: item.completed,
+            },
+        }));
     }
 
     return (
@@ -152,10 +153,10 @@ function DayCalendar({ date }) {
                     />
                     {/* 종일 할 일 렌더링 */}
                     {groupedAllDayTodos.map((group, groupIndex) =>
-                        group.map((date, indexInGroup) => (
+                        group.map((todo, indexInGroup) => (
                             <TodoItem
-                                key={date.id}
-                                data={date}
+                                key={todo.id}
+                                data={todo}
                                 date={date}
                                 groupSize={group.length}
                                 groupIndex={indexInGroup}
