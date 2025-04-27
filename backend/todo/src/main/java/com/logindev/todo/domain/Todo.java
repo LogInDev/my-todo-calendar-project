@@ -33,9 +33,10 @@ public class Todo extends BaseEntity {
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean completed = false;
-
+    @Builder.Default
     private Boolean isAllDay = false;
 
 

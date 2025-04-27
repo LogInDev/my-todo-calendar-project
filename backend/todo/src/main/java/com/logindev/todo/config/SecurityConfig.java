@@ -24,7 +24,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+//                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfiguration.addAllowedOrigin("*"); // 모든 출처 허용
+                    corsConfiguration.addAllowedHeader("*"); // 모든 헤더 허용
+                    corsConfiguration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+                    return corsConfiguration;
+                }))
                 .exceptionHandling(e ->
                         e.authenticationEntryPoint((request, response, authException) -> {
                             if (authException.getMessage().contains("JWT")) {
@@ -41,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/favicon.ico",
                                 "/img/**", "/static/**", "/css/**", "/js/**",
+                                "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**",
                                 "/login",
                                 "/oauth2/**", "/login/oauth2/**", "/api/public/**"
                         ).permitAll()
