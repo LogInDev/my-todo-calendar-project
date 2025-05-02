@@ -41,7 +41,7 @@ services:
       context: ./frontend
     container_name: todo-frontend
     environment:
-      REACT_APP_API_URL: http://backend:8080 
+      REACT_APP_API_BASE_URL: http://localhost:8080 
       REACT_APP_KAKAO_REST_API_KEY: 091acef88105f929b7ee98967def5acc
     ports:
       - "3000:3000"
