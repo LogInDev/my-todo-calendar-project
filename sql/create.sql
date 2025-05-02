@@ -8,8 +8,6 @@ CREATE TABLE users (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '사용자 수정 일시'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 테이블';
 
--- ⚠️ 위 문장을 반드시 세미콜론(;)으로 끝내야 다음 CREATE 가 가능함
-
 -- 2. 태그 테이블
 CREATE TABLE tags (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '태그 고유 아이디',
